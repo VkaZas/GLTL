@@ -16,7 +16,6 @@ gulp.task('build', function () {
         .pipe(source('app.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init())
-        .pipe(uglify())
         .pipe(sourcemaps.write('./maps'))
         .pipe(gulp.dest('./dist/'))
         .pipe(livereload());

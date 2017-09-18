@@ -1,3 +1,5 @@
-let a = 5;
-let b = 20123;
-let c = 'hahaha';
+import {ILTL} from './js/LTL_interactive';
+
+let agent = new ILTL();
+agent.generateMatrix();
+agent.printMatrix();
