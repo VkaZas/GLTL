@@ -1,0 +1,39 @@
+.grid-container {
+  height: auto;
+  width: auto;
+  position: relative;
+
+  .grid-row {
+    display: block;
+    height: auto;
+    width: auto;
+
+    .grid {
+      display: inline-block;
+      position: relative;
+      background-color: white;
+      border: 1px solid gray;
+      margin-left: 5px;
+      cursor: pointer;
+      font-size: 50px;
+      font-weight: bold;
+      text-align: center;
+      transition: background-color .5s;
+
+      &:hover {
+        background-color: burlywood;
+      }
+
+      span {
+        position: absolute;
+        margin-left: -18px;
+      }
+    }
+  }
+
+  .grid-android {
+    position: absolute;
+    border-radius: 100%;
+    background-color: darkslateblue;
+  }
+}
