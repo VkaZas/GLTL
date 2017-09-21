@@ -15,6 +15,7 @@ export class GridPainter {
             height: this.androidSize + 'px',
             width: this.androidSize + 'px'
         });
+        this.freeze = false;
 
         Object.assign(this, option);
 
@@ -48,20 +49,32 @@ export class GridPainter {
         }
     }
 
-    paintChar(index, char = '?') {
+    _paintChar(index, char = '?') {
         let $grid = this.gridList[index];
         $grid.append('<span>' + char + '</span>');
     }
 
-    gridClicked(index) {
-        if (!!this.clickCallBack)
-            this.clickCallBack(index);
-        console.log(index);
+    paintMatrix(mat) {
+        this.container.find('span').remove();
+        for (let i = 0; i < this.height; i++)
+            for (let j = 0; j < this.width; j++) {
+                let index = i * this.width + j;
+                if (mat[index] === 'A' || mat[index] === 'B' ||
+                    mat[index] === 'C' || mat[index] === 'D')
+                    this._paintChar(index, mat[index]);
+            }
     }
 
-    getGridPos(index) {
+    gridClicked(index) {
+        if (this.freeze) return;
+        if (!!this.clickCallBack)
+            this.clickCallBack(index);
+    }
+
+    _getGridPos(index) {
+        // console.log('[_getGridPos]: index = ' + index);
+
         let $grid = this.gridList[index];
-        let $row = $grid.parent('.grid-row');
         return {
             x: $grid.position().left,
             y: $grid.position().top
@@ -69,7 +82,7 @@ export class GridPainter {
     }
 
     setAndroid(index) {
-        let pos = this.getGridPos(index);
+        let pos = this._getGridPos(index);
         this.android.css({
             top: pos.y + (this.gridSize - this.androidSize) / 2 + 'px',
             left: 5 + pos.x + (this.gridSize - this.androidSize) / 2 + 'px'
@@ -77,8 +90,12 @@ export class GridPainter {
         this.container.append(this.android);
     }
 
+    clearAndroid() {
+        this.container.find('.grid-android').remove();
+    }
+
     moveAndroid(destIdx) {
-        let destPos = this.getGridPos(destIdx);
+        let destPos = this._getGridPos(destIdx);
         this.android.animate({
             top: destPos.y + (this.gridSize - this.androidSize) / 2 + 'px',
             left: 5 + destPos.x + (this.gridSize - this.androidSize) / 2 + 'px'
@@ -87,5 +104,13 @@ export class GridPainter {
 
     displayMessage() {
 
+    }
+
+    freezePainter() {
+        this.freeze = true;
+    }
+
+    unfreezePainter() {
+        this.freeze = false;
     }
 }

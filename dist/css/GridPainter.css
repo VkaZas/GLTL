@@ -1,6 +1,7 @@
 .grid-container {
   height: auto;
   width: auto;
+  min-width: 550px;
   position: relative; }
   .grid-container .grid-row {
     display: block;

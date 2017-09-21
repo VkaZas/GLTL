@@ -1,2 +1,15 @@
-.test {
-  background-color: red; }
+html, body {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow-y: hidden; }
+
+body {
+  padding-top: 100px; }
+
+.container {
+  width: 90% !important; }
+
+#logger {
+  max-height: 500px;
+  overflow-y: scroll; }

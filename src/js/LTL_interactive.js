@@ -175,10 +175,15 @@ export class ILTL {
             currentTask: null,
             currentTaskIndex: 0,
             succeedLastRound: true,
+            deadendCallback: null,
+            finish: () => {
+                alert('Training finished');
+            }
         });
         
         // customized settings override
         Object.assign(this, settings);
+        console.log(settings)
     }
 
     /** member methods **/
@@ -192,7 +197,7 @@ export class ILTL {
         });
     }
 
-    initSubTask(startPos) {
+    initSubTask() {
         let self = this;
 
         // resulting a clean TBDTask list for task candidates
@@ -203,10 +208,13 @@ export class ILTL {
         // reset valid grid to judge visited grid
         for (let i=0; i<25; i++)
             this.validGrid[i] = i;
+
+        this.currentTask = this.subTask[this.currentTaskIndex];
+        // console.log(this.currentTask);
         
         function cleanSubTask(taskArr, task) {
-            for (let g=0; g<k; g++) {
-                task = self.subTask[g];
+            for (let g=0; g<taskArr.length; g++) {
+                // task = self.subTask[g];
                 if (!!task) {
                     for (let i=taskArr.length - 1; i>=0; i--) {
                         if (taskArr[i].op === 0);
@@ -227,13 +235,20 @@ export class ILTL {
         if (pos === -1) {
             pos = this.validGrid[parseInt(this.validGrid.length * Math.random())];
         }
-        ILTL.removeByValue(this.validGrid, pos);
+        // ILTL.removeByValue(this.validGrid, pos);
+
+        // console.log('[calcNextMove]: TBDTask = ', this.TBDTask);
 
         let tmpLen = this.TBDTask.length;
+
         this.feedbackTable = [];
+        console.log('[calcNextMove]: ');
         for (let i=0; i<tmpLen; i++) {
             this.feedbackTable[i] = this.judge(pos, this.TBDTask[i]);
+            console.log(this.TBDTask[i].print(false) + ' : ' + this.feedbackTable[i].s1 + ' ' + this.feedbackTable[i].term);
         }
+
+        // console.log('[calcNextMove]: feedbackTable = ', this.feedbackTable);
 
         let sumMap = new Map(), maxSum = -1, nextState = null;
         for (let i=0; i<tmpLen; i++) {
@@ -241,7 +256,7 @@ export class ILTL {
             let res = sumMap.get(nowFeedback);
 
             // already used this grid
-            if (validGrid.indexOf(nowFeedback.s1) === -1) continue;
+            if (this.validGrid.indexOf(nowFeedback.s1) === -1) continue;
 
             if (res === undefined)
                 sumMap.set(nowFeedback, 1);
@@ -254,12 +269,17 @@ export class ILTL {
         }
 
         if (nextState !== null) return nextState;
-        else return {
-            s1: -1,
-            term: 0
+        else {
+            console.log('DEAD!!');
+            alert('Failed!');
+            return {
+                s1: -1,
+                term: 0
+            }
         }
     }
 
+    // updater
     filterByFeedback(fb, state) {
         let tmpLen = this.TBDTask.length;
         for (let i=tmpLen - 1; i>=0; i--) {
@@ -268,10 +288,24 @@ export class ILTL {
                 if (thisState.s1 !== state.s1 || thisState.term !== state.term)
                     this.TBDTask.splice(i, 1);
             } else {
-                if (thisState.s1 === state.s1 || thisState.term !== state.term)
+                if (thisState.s1 === state.s1 && thisState.term === state.term)
                     this.TBDTask.splice(i, 1);
             }
         }
+
+        // Learn success, go to next task
+        if (this.TBDTask.length === 1) {
+            this.learntTask = this.TBDTask[0];
+            this.currentTaskIndex++;
+            this.defaultTask.push(this.learntTask);
+            if (this.currentTask.equal(this.targetTask))
+            {
+                if (this.finish instanceof Function)
+                    console.log("Finished");
+                    this.finish();
+            }
+            return this.learntTask;
+        } else return 0;
     }
 
     generateMatrix() {
@@ -287,8 +321,8 @@ export class ILTL {
         }
     
         // generate C position
-        // let randC = parseInt(4*Math.random());
-        let randC = 1;
+        let randC = parseInt(4*Math.random());
+        // let randC = 1;
         // console.log('randC: ' + randC);
         const posDicC = [0, n-1, n*(n-1), n*n-1];
         mat[posDicC[randC]] = 'C';
@@ -307,8 +341,8 @@ export class ILTL {
             idxD.push(n*i+n-1);
         }
         ILTL.removeByValue(idxD, posDicC[randC]);
-        // let randD = parseInt(idxD.length*Math.random());
-        let randD = 5;
+        let randD = parseInt(idxD.length*Math.random());
+        // let randD = 5;
         // console.log('randD: ' + randD);
         // console.log(idxD.length);
         mat[idxD[randD]] = 'D';
@@ -317,16 +351,16 @@ export class ILTL {
         // console.log(idx);
     
         //generate A B
-        // let randA = parseInt((n*n-2)*Math.random());
-        let randA = 10;
+        let randA = parseInt((n*n-2)*Math.random());
+        // let randA = 10;
         // console.log('randA: ' + randA);
         mat[idx[randA]] = 'A';
         // console.log(idx[randA]);
         ILTL.removeByValue(idx, idx[randA]);
         // console.log(idx);
     
-        // let randB = parseInt((n*n-3)*Math.random());
-        let randB = 15;
+        let randB = parseInt((n*n-3)*Math.random());
+        // let randB = 15;
         // console.log('randB: ' + randB);
         // console.log(idx[randB]);
     
@@ -395,8 +429,9 @@ export class ILTL {
         return resTaskList;
     }
 
-    distScore(mat, s0, distChar, qTuple) {
-        let d = this.dist(mat, s0, distChar);
+    distScore(s0, distChar, qTuple) {
+        let d = this.dist(s0, distChar);
+        // console.log('[distScore]: params = ',s0, distChar, qTuple);
         return Math.pow(this.beta, d) * Math.pow(this.alpha, qTuple[distChar].pow) * qTuple[distChar].mark;
     }
 
@@ -407,15 +442,18 @@ export class ILTL {
                 target = i;
                 break;
             }
+        // console.log('[dist]: target = ', target);
         return Math.abs(Math.floor(target / 5) - Math.floor(src / 5)) + Math.abs(target % 5 - src % 5);
     }
 
     judge(s0, task) {
+        // console.log('[judge]: s0 = ' + s0, task);
         let res = {s1: null, term: null};
+        let self = this;
         res.s1 = judgeState(s0, task);
         res.term = judgeTerm(s0, task);
 
-        let self = this;
+
 
         return res;
 
@@ -442,6 +480,8 @@ export class ILTL {
                 }
             }
             if (!(tmpCnt > 1 && occupy === true)) dests.push(s0);
+            // console.log('[judgeState]: dests = ', dests);
+            // console.log('[judgeState]: quadTuple = ', quadTuple);
 
             // which dest possess maximum score
             let maxScore = -2147483647, targetDest = -1;
@@ -449,13 +489,15 @@ export class ILTL {
                 let score = 0;
                 for (let key in quadTuple)
                     if (quadTuple[key] !== null) {
-                        score += self.distScore(mat, dest, key, quadTuple);
+                        score += self.distScore(dest, key, quadTuple);
+                        // console.log('[judgeState]: score = ', score);
                     }
                 if (score > maxScore) {
                     maxScore = score;
                     targetDest = dest;
                 }
             }
+
 
             return targetDest;
         }
@@ -478,9 +520,11 @@ export class ILTL {
                         break;
                     case 'eventually':
                         res = judgeTerm(s0, task.lc);
+                        // console.log(res);
                         if (res === 1) return 1;
                         else if (res === -1) {
                             let rand = Math.random();
+                            // console.log(rand,' ', self.miu);
                             if (rand < self.miu) return -1;
                             else {
                                 return 0;
@@ -587,4 +631,73 @@ export class ILTL {
         or.addRc(node2.replicate());
         return or;
     }
+
+    /**  eventually C and not eventually A or B **/
+    static task1() {
+        let targetTask = new Node(2, 'and');
+        let nodeC = new Node(0, 'C');
+        let nodeA = new Node(0, 'A');
+        let nodeB = new Node(0, 'B');
+
+        let nodeEvC = ILTL.hypoEventually(nodeC);
+        let nodeAB = ILTL.hypoOr(nodeA, nodeB);
+        let nodeNot = ILTL.hypoEventually(nodeAB);
+        let nodeAlw = ILTL.hypoNot(nodeNot);
+        targetTask.addLc(nodeEvC);
+        targetTask.addRc(nodeAlw);
+
+        return targetTask;
+    }
+
+    /** eventually A and eventually always D **/
+    static task2() {
+        let targetTask = new Node(2, 'and');
+
+        let nodeEv = new Node(1, 'eventually');
+        let nodeA = new Node(0, 'A');
+
+        let nodeEv2 = new Node(1, 'eventually');
+        let nodeAlw = new Node(1, 'always');
+        let nodeD = new Node(0, 'D');
+
+        nodeEv.addLc(nodeA);
+        nodeAlw.addLc(nodeD);
+        nodeEv2.addLc(nodeAlw);
+        targetTask.addLc(nodeEv);
+        targetTask.addRc(nodeEv2);
+
+        return targetTask;
+    }
+
+    /**  always eventually C and eventually D **/
+    static task3() {
+        let targetTask = new Node(1, 'always');
+        let nodeC = new Node(0, 'C');
+        let nodeD = new Node(0, 'D');
+
+        let nodeEv = ILTL.hypoEventually(nodeD);
+        let nodeAnd = ILTL.hypoAnd(nodeC, nodeEv);
+
+        let nodeEv2 = ILTL.hypoEventually(nodeAnd);
+
+        targetTask.addLc(nodeEv2);
+
+        return targetTask;
+    }
+
+    /** eventually (A and eventually B)) and not eventually D  **/
+    static task4() {
+        let targetTask = new Node(2, 'and');
+        let nodeD = new Node(0, 'D');
+        let nodeA = new Node(0, 'A');
+        let nodeB = new Node(0, 'B');
+
+        let nodeRight = ILTL.hypoNot(ILTL.hypoEventually(nodeD));
+        let nodeLeft = ILTL.hypoEventually(ILTL.hypoAnd(nodeA, ILTL.hypoEventually(nodeB)));
+        targetTask.addLc(nodeLeft);
+        targetTask.addRc(nodeRight);
+
+        return targetTask;
+    }
 }
+

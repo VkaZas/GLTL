@@ -1,5 +1,24 @@
-$background : red;
+html, body {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  overflow-y: hidden;
+}
 
-.test {
-  background-color: $background;
+body {
+  padding-top: 100px;
+}
+
+.container {
+  width: 90% !important;
+
+  .row {
+
+  }
+
+}
+
+#logger {
+  max-height: 600px;
+  overflow-y: scroll;
 }
