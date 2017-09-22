@@ -11,22 +11,32 @@
     <div class="container">
         <div class="row">
             <!--grid map-->
-            <div id="grid-container" class="col m6">
+            <div id="grid-container" class="col m5">
 
             </div>
             <!--operation-->
             <div id="operation-container" class="col m3">
                 <div class="row">
                     <div class="col m6">
-                        <a class="waves-effect waves-light btn" id="btn-positive">+1</a>
+                        <a class="waves-effect waves-light btn" id="btn-positive">Agree</a>
                     </div>
                     <div class="col m6">
-                        <a class="waves-effect waves-light btn" id="btn-negative">-1</a>
+                        <a class="waves-effect waves-light btn" id="btn-negative">Disagree</a>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col m12">
                         <a class="waves-effect waves-light btn red" id="btn-replace">replace</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col m12">
+                        <a class="waves-effect waves-light btn red" id="btn-reset">reset</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col m12">
+                        <a class="waves-effect waves-light btn red" id="btn-revert">revert</a>
                     </div>
                 </div>
             </div>
@@ -37,6 +47,9 @@
                         <div class="card grey darken-1">
                             <div class="card-content white-text" id="logger">
                                 <span class="card-title">Log</span>
+                                <div id="logger-logs">
+
+                                </div>
                             </div>
                         </div>
                     </div>

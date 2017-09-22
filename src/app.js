@@ -5,17 +5,12 @@ import $ from 'jquery';
 $(document).ready(() => {
     let s0, s1, replacing = false;
     let agent = new ILTL({
-        targetTask: ILTL.task4(),
-        deadendCallback: (index) => {
-            log('Reached deadend, repositioning randomly: ' + index);
-            painter.setAndroid(index);
-            s0 = index;
-        }
+        targetTask: ILTL.task4()
     });
     let painter = new GridPainter($('#grid-container'), {
         clickCallBack: (index) => {
             if (!replacing) agent.initSubTask();
-            log('Learning : ' + agent.currentTask.print(), 'red');
+            log('Learning : ' + agent.currentTask.print(), 'skyblue');
             s0 = index;
             s1 = agent.calcNextMove(s0);
             console.log('[clickCallBack]: s1 = ', s1);
@@ -23,12 +18,15 @@ $(document).ready(() => {
             painter.moveAndroid(s1.s1);
             log(s0 + '->' + s1.s1 + ':' + s1.term);
             painter.freezePainter();
+            displayPrediction(s1);
         }
     });
 
-    let $btnPositive = $('#btn-positive');
-    let $btnNegative = $('#btn-negative');
-    let $btnReplace = $('#btn-replace');
+    let $btnPositive = $('#btn-positive'),
+        $btnNegative = $('#btn-negative'),
+        $btnReplace = $('#btn-replace'),
+        $btnReset = $('#btn-reset'),
+        $btnRevert = $('#btn-revert');
 
     $btnPositive.click(() => {
         let res = agent.filterByFeedback(true, s1);
@@ -38,6 +36,7 @@ $(document).ready(() => {
             if (s1.s1 !== -1) {
                 painter.moveAndroid(s1.s1);
                 log(s0.s1 + '->' + s1.s1 + ':' + s1.term);
+                displayPrediction(s1);
             } else {
 
             }
@@ -58,7 +57,9 @@ $(document).ready(() => {
             if (s1.s1 !== -1) {
                 painter.moveAndroid(s1.s1);
                 log(s0.s1 + '->' + s1.s1 + ':' + s1.term);
+                displayPrediction(s1);
             } else {
+
             }
         } else {
             log('Task learned : ' + res.print(), 'limegreen');
@@ -72,6 +73,20 @@ $(document).ready(() => {
         painter.clearAndroid();
         painter.unfreezePainter();
         replacing = true;
+        log('Please replace your agent.', 'limegreen');
+    });
+
+    $btnReset.click(() => {
+        painter.clearAndroid();
+        painter.unfreezePainter();
+        log('Current task has been reset. \n Please place your agent.', 'red');
+    });
+
+    $btnRevert.click(() => {
+        painter.clearAndroid();
+        agent.revert();
+        painter.unfreezePainter();
+        log('Reverted to previous task. \n Please place your agent.', 'red');
     });
 
     agent.init();
@@ -82,15 +97,34 @@ $(document).ready(() => {
 
     window.painter = painter;
     window.agent = agent;
+
+    function displayPrediction(state) {
+        // positive
+        let res = agent.predictByFeedback(true, state);
+        if (res.length <= 3) {
+            log('By pressing Agree, agent will learn one of following:', 'orange');
+            for (let str of res) log(str, 'orange');
+        }
+        // negative
+        res = agent.predictByFeedback(false, state);
+        if (res.length <= 3) {
+            log('By pressing Disagree, agent will learn one of following:', 'orange');
+            for (let str of res) log(str, 'orange');
+        }
+    }
 });
 
 function log(str, color = 'white') {
-    let $p = $('<p>' + str + '</p>');
-    let $logger = $('#logger');
+    let $p = $('<p>' + str + '</p>'),
+        $logger = $('#logger'),
+        $logs = $('#logger-logs');
     $p.css('color', color);
-    $logger.append($p);
-    $logger.scrollTop($logger.find('p').length * 300);
+    $logs.append($p);
+    let deltaH = $logs.height() - $logger.height();
+    $logger.scrollTop(deltaH > -40 ? deltaH + 40 : 0);
 }
+
+
 
 
 

@@ -771,7 +771,7 @@ let targetTask = task2();
 // printDistScore(mat, 'A', nodeEv.getQuadTuple());
 
 // printDistScore(mat, 'A', targetTask.getQuadTuple())
-// console.log(distScore(mat, 6, 'A', targetTask.getQuadTuple()))
+// console.log(_distScore(mat, 6, 'A', targetTask.getQuadTuple()))
 
 let taskList = [task1, task2, task3, task4, task5];
 let fileList = ['task1.tsv', 'task2.tsv', 'task3.tsv', 'task4.tsv', 'task5.tsv'];
@@ -866,8 +866,8 @@ for (let node of testTaskList) {
 }
 
 // let nodeA = new Node(0, 'A');
-// console.log(judge(11, hypoNot(nodeA)));
-// console.log(judge(11, hypoNot(hypoEventually(nodeA))));
+// console.log(_judge(11, hypoNot(nodeA)));
+// console.log(_judge(11, hypoNot(hypoEventually(nodeA))));
 
 
 

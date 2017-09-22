@@ -8,8 +8,9 @@ body {
   padding-top: 100px; }
 
 .container {
-  width: 90% !important; }
+  width: 100% !important;
+  max-width: 1920px !important; }
 
 #logger {
-  max-height: 500px;
+  max-height: 600px;
   overflow-y: scroll; }

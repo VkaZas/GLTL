@@ -836,8 +836,8 @@ function loopMain(task, times) {
 // }
 
 // let nodeA = new Node(0, 'A');
-// console.log(judge(11, hypoNot(nodeA)));
-// console.log(judge(11, hypoNot(hypoEventually(nodeA))));
+// console.log(_judge(11, hypoNot(nodeA)));
+// console.log(_judge(11, hypoNot(hypoEventually(nodeA))));
 
 
 

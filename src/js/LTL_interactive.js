@@ -175,7 +175,6 @@ export class ILTL {
             currentTask: null,
             currentTaskIndex: 0,
             succeedLastRound: true,
-            deadendCallback: null,
             finish: () => {
                 alert('Training finished');
             }
@@ -191,7 +190,7 @@ export class ILTL {
     // entry method
     init() {
         this.generateMatrix();
-        this.generateSubtrees(this.targetTask);
+        this._generateSubtrees(this.targetTask);
         this.subTask.sort((node1, node2) => {
             return node1.depth < node2.depth ? 1 : -1;
         });
@@ -202,10 +201,10 @@ export class ILTL {
 
         // resulting a clean TBDTask list for task candidates
         cleanSubTask(this.defaultTask, this.learntTask);
-        this.makeNewTasks();
+        this._makeNewTasks();
         cleanSubTask(this.TBDTask, this.learntTask);
 
-        // reset valid grid to judge visited grid
+        // reset valid grid to _judge visited grid
         for (let i=0; i<25; i++)
             this.validGrid[i] = i;
 
@@ -244,7 +243,7 @@ export class ILTL {
         this.feedbackTable = [];
         console.log('[calcNextMove]: ');
         for (let i=0; i<tmpLen; i++) {
-            this.feedbackTable[i] = this.judge(pos, this.TBDTask[i]);
+            this.feedbackTable[i] = this._judge(pos, this.TBDTask[i]);
             console.log(this.TBDTask[i].print(false) + ' : ' + this.feedbackTable[i].s1 + ' ' + this.feedbackTable[i].term);
         }
 
@@ -306,6 +305,22 @@ export class ILTL {
             }
             return this.learntTask;
         } else return 0;
+    }
+
+    predictByFeedback(fb, state) {
+        let res = [];
+        let tmpLen = this.TBDTask.length;
+        for (let i=tmpLen - 1; i>=0; i--) {
+            let thisState = this.feedbackTable[i];
+            if (fb === false) {
+                if (thisState.s1 !== state.s1 || thisState.term !== state.term)
+                    res.push(this.TBDTask[i].print(false));
+            } else {
+                if (thisState.s1 === state.s1 && thisState.term === state.term)
+                    res.push(this.TBDTask[i].print(false));
+            }
+        }
+        return res;
     }
 
     generateMatrix() {
@@ -383,7 +398,14 @@ export class ILTL {
     }
 }
 
-    makeNewTasks() {
+    // This method should only be called at the moment when a new task just has been learnt
+    revert() {
+        this.defaultTask.splice(this.defaultTask.length - 1, 1);
+        this.currentTaskIndex--;
+        this.learntTask = null;
+    }
+
+    _makeNewTasks() {
         let resTaskList = [];
 
         // assemble original tasks with 'and', 'eventually', 'or', 'always', 'not'
@@ -429,25 +451,25 @@ export class ILTL {
         return resTaskList;
     }
 
-    distScore(s0, distChar, qTuple) {
-        let d = this.dist(s0, distChar);
-        // console.log('[distScore]: params = ',s0, distChar, qTuple);
+    _distScore(s0, distChar, qTuple) {
+        let d = this._dist(s0, distChar);
+        // console.log('[_distScore]: params = ',s0, distChar, qTuple);
         return Math.pow(this.beta, d) * Math.pow(this.alpha, qTuple[distChar].pow) * qTuple[distChar].mark;
     }
 
-    dist(src, distChar) {
+    _dist(src, distChar) {
         let target = -1;
         for (let i=0; i<this.mat.length; i++)
             if (this.mat[i] === distChar) {
                 target = i;
                 break;
             }
-        // console.log('[dist]: target = ', target);
+        // console.log('[_dist]: target = ', target);
         return Math.abs(Math.floor(target / 5) - Math.floor(src / 5)) + Math.abs(target % 5 - src % 5);
     }
 
-    judge(s0, task) {
-        // console.log('[judge]: s0 = ' + s0, task);
+    _judge(s0, task) {
+        // console.log('[_judge]: s0 = ' + s0, task);
         let res = {s1: null, term: null};
         let self = this;
         res.s1 = judgeState(s0, task);
@@ -461,15 +483,17 @@ export class ILTL {
             let quadTuple = task.getQuadTuple();
             let dests = [];
 
-            // validate 5 potential destinations
-            if (s0 - 5 >= 0)
-                dests.push(s0-5);
-            if (s0 + 5 <25)
-                dests.push(s0+5);
+            // validate 5 potential destinations, left -> up -> right -> down
             if (s0 % 5 !== 0)
                 dests.push(s0-1);
+            if (s0 - 5 >= 0)
+                dests.push(s0-5);
             if ((s0+1)%5 !== 0)
                 dests.push(s0+1);
+            if (s0 + 5 <25)
+                dests.push(s0+5);
+
+
 
             let tmpCnt = 0;
             let occupy = false;
@@ -489,7 +513,7 @@ export class ILTL {
                 let score = 0;
                 for (let key in quadTuple)
                     if (quadTuple[key] !== null) {
-                        score += self.distScore(dest, key, quadTuple);
+                        score += self._distScore(dest, key, quadTuple);
                         // console.log('[judgeState]: score = ', score);
                     }
                 if (score > maxScore) {
@@ -576,11 +600,11 @@ export class ILTL {
         }
     }
 
-    generateSubtrees(node) {
+    _generateSubtrees(node) {
         if (!!node.lc)
-            this.generateSubtrees(node.lc);
+            this._generateSubtrees(node.lc);
         if (!!node.rc)
-            this.generateSubtrees(node.rc);
+            this._generateSubtrees(node.rc);
 
         if (node.op > 0) {
             let tmpNode = node.replicate();
