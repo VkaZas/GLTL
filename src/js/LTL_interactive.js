@@ -284,10 +284,10 @@ export class ILTL {
         for (let i=tmpLen - 1; i>=0; i--) {
             let thisState = this.feedbackTable[i];
             if (fb === true) {
-                if (thisState.s1 !== state.s1 || thisState.term !== state.term)
+                if (thisState.s1 !== state.s1)
                     this.TBDTask.splice(i, 1);
             } else {
-                if (thisState.s1 === state.s1 && thisState.term === state.term)
+                if (thisState.s1 === state.s1)
                     this.TBDTask.splice(i, 1);
             }
         }
@@ -313,10 +313,10 @@ export class ILTL {
         for (let i=tmpLen - 1; i>=0; i--) {
             let thisState = this.feedbackTable[i];
             if (fb === false) {
-                if (thisState.s1 !== state.s1 || thisState.term !== state.term)
+                if (thisState.s1 !== state.s1)
                     res.push(this.TBDTask[i].print(false));
             } else {
-                if (thisState.s1 === state.s1 && thisState.term === state.term)
+                if (thisState.s1 === state.s1)
                     res.push(this.TBDTask[i].print(false));
             }
         }

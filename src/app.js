@@ -13,10 +13,10 @@ $(document).ready(() => {
             log('Learning : ' + agent.currentTask.print(), 'skyblue');
             s0 = index;
             s1 = agent.calcNextMove(s0);
-            console.log('[clickCallBack]: s1 = ', s1);
+            // console.log('[clickCallBack]: s1 = ', s1);
             painter.setAndroid(s0);
             painter.moveAndroid(s1.s1);
-            log(s0 + '->' + s1.s1 + ':' + s1.term);
+            log(s0 + '->' + s1.s1);
             painter.freezePainter();
             displayPrediction(s1);
         }
@@ -35,7 +35,7 @@ $(document).ready(() => {
             s1 = agent.calcNextMove(s0.s1);
             if (s1.s1 !== -1) {
                 painter.moveAndroid(s1.s1);
-                log(s0.s1 + '->' + s1.s1 + ':' + s1.term);
+                log(s0.s1 + '->' + s1.s1);
                 displayPrediction(s1);
             } else {
 
@@ -56,7 +56,7 @@ $(document).ready(() => {
             s1 = agent.calcNextMove(s0.s1);
             if (s1.s1 !== -1) {
                 painter.moveAndroid(s1.s1);
-                log(s0.s1 + '->' + s1.s1 + ':' + s1.term);
+                log(s0.s1 + '->' + s1.s1);
                 displayPrediction(s1);
             } else {
 
@@ -101,13 +101,13 @@ $(document).ready(() => {
     function displayPrediction(state) {
         // positive
         let res = agent.predictByFeedback(true, state);
-        if (res.length <= 3) {
+        if (res.length <= 3 && res.length > 0) {
             log('By pressing Agree, agent will learn one of following:', 'orange');
             for (let str of res) log(str, 'orange');
         }
         // negative
         res = agent.predictByFeedback(false, state);
-        if (res.length <= 3) {
+        if (res.length <= 3 && res.length > 0) {
             log('By pressing Disagree, agent will learn one of following:', 'orange');
             for (let str of res) log(str, 'orange');
         }
