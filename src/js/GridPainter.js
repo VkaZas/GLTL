@@ -95,6 +95,11 @@ export class GridPainter {
     }
 
     moveAndroid(destIdx) {
+        if (destIdx < 0) {
+            if (destIdx === -2) this.setAndroidEmotion(0);
+            else if (destIdx === -3) this.setAndroidEmotion(1);
+            return;
+        }
         let destPos = this._getGridPos(destIdx);
         this.android.animate({
             top: destPos.y + (this.gridSize - this.androidSize) / 2 + 'px',
@@ -112,5 +117,13 @@ export class GridPainter {
 
     unfreezePainter() {
         this.freeze = false;
+    }
+
+    setAndroidEmotion(emotion = 0) {
+        let clr = 'green';
+        if (emotion === 0) clr = 'green';
+        else if(emotion === 1) clr = 'red';
+        else clr = 'orange';
+        this.android.css('background-color', clr)
     }
 }

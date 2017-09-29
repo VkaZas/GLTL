@@ -5,7 +5,7 @@ import $ from 'jquery';
 $(document).ready(() => {
     let s0, s1, replacing = false;
     let agent = new ILTL({
-        targetTask: ILTL.task4()
+        targetTask: ILTL.task3()
     });
     let painter = new GridPainter($('#grid-container'), {
         clickCallBack: (index) => {
@@ -13,6 +13,16 @@ $(document).ready(() => {
             log('Learning : ' + agent.currentTask.print(), 'skyblue');
             s0 = index;
             s1 = agent.calcNextMove(s0);
+            // console.log(s1);
+            if (s1.term === -1) {
+                s1.s1 = index;
+                painter.setAndroidEmotion(1);
+            } else if (s1.term === 1) {
+                s1.s1 = index;
+                painter.setAndroidEmotion(0);
+            } else {
+                painter.setAndroidEmotion(2);
+            }
             // console.log('[clickCallBack]: s1 = ', s1);
             painter.setAndroid(s0);
             painter.moveAndroid(s1.s1);
@@ -34,6 +44,15 @@ $(document).ready(() => {
             s0 = s1;
             s1 = agent.calcNextMove(s0.s1);
             if (s1.s1 !== -1) {
+                if (s1.term === -1) {
+                    s1.s1 = s0.s1;
+                    painter.setAndroidEmotion(1);
+                } else if (s1.term === 1) {
+                    s1.s1 = s0.s1;
+                    painter.setAndroidEmotion();
+                } else {
+                    painter.setAndroidEmotion(2);
+                }
                 painter.moveAndroid(s1.s1);
                 log(s0.s1 + '->' + s1.s1);
                 displayPrediction(s1);
@@ -42,7 +61,7 @@ $(document).ready(() => {
             }
 
         } else {
-            log('Task learned : ' + res.print(), 'limegreen');
+            log('Task learned : ' + res.print(false), 'limegreen');
             log('Please place your agent.', 'limegreen');
             painter.unfreezePainter();
             replacing = false;
@@ -55,6 +74,15 @@ $(document).ready(() => {
             s0 = s1;
             s1 = agent.calcNextMove(s0.s1);
             if (s1.s1 !== -1) {
+                if (s1.term === -1) {
+                    s1.s1 = s0.s1;
+                    painter.setAndroidEmotion(1);
+                } else if (s1.term === 1) {
+                    s1.s1 = s0.s1;
+                    painter.setAndroidEmotion();
+                } else {
+                    painter.setAndroidEmotion(2);
+                }
                 painter.moveAndroid(s1.s1);
                 log(s0.s1 + '->' + s1.s1);
                 displayPrediction(s1);
@@ -62,7 +90,7 @@ $(document).ready(() => {
 
             }
         } else {
-            log('Task learned : ' + res.print(), 'limegreen');
+            log('Task learned : ' + res.print(false), 'limegreen');
             log('Please place your agent.', 'limegreen');
             painter.unfreezePainter();
             replacing = false;

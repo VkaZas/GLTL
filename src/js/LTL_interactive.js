@@ -280,15 +280,28 @@ export class ILTL {
 
     // updater
     filterByFeedback(fb, state) {
+        console.log(state);
         let tmpLen = this.TBDTask.length;
         for (let i=tmpLen - 1; i>=0; i--) {
             let thisState = this.feedbackTable[i];
             if (fb === true) {
-                if (thisState.s1 !== state.s1)
-                    this.TBDTask.splice(i, 1);
+                if (state.term === 0) {
+                    if (thisState.s1 !== state.s1 || thisState.term !== state.term)
+                        this.TBDTask.splice(i, 1);
+                } else {
+                    if (thisState.term !== state.term)
+                        this.TBDTask.splice(i, 1);
+                }
+
             } else {
-                if (thisState.s1 === state.s1)
-                    this.TBDTask.splice(i, 1);
+                if (state.term === 0) {
+                    if (thisState.s1 === state.s1 && thisState.term === state.term)
+                        this.TBDTask.splice(i, 1);
+                } else {
+                    if (thisState.term === state.term)
+                        this.TBDTask.splice(i, 1);
+                }
+
             }
         }
 
@@ -313,14 +326,27 @@ export class ILTL {
         for (let i=tmpLen - 1; i>=0; i--) {
             let thisState = this.feedbackTable[i];
             if (fb === false) {
-                if (thisState.s1 !== state.s1)
-                    res.push(this.TBDTask[i].print(false));
+                if (state.term === 0) {
+                    if (thisState.s1 !== state.s1 || thisState.term !== state.term)
+                        res.push(this.TBDTask[i].print(false));
+                } else {
+                    if (thisState.term !== state.term)
+                        res.push(this.TBDTask[i].print(false));
+                }
+
             } else {
-                if (thisState.s1 === state.s1)
-                    res.push(this.TBDTask[i].print(false));
+                if (state.term === 0) {
+                    if (thisState.s1 === state.s1 && thisState.term === state.term)
+                        res.push(this.TBDTask[i].print(false));
+                } else {
+                    if (thisState.term === state.term)
+                        res.push(this.TBDTask[i].print(false));
+                }
+
             }
         }
         return res;
+
     }
 
     generateMatrix() {
@@ -474,8 +500,6 @@ export class ILTL {
         let self = this;
         res.s1 = judgeState(s0, task);
         res.term = judgeTerm(s0, task);
-
-
 
         return res;
 
@@ -722,6 +746,16 @@ export class ILTL {
         targetTask.addRc(nodeRight);
 
         return targetTask;
+    }
+
+    /** always eventually (A and eventually B) **/
+    static task5() {
+        let nodeA = new Node(0, 'A');
+        let nodeB = new Node(0, 'B');
+
+        let nodeLeft = ILTL.hypoAlways(ILTL.hypoEventually(ILTL.hypoAnd(nodeA, ILTL.hypoEventually(nodeB))));
+
+        return nodeLeft;
     }
 }
 
