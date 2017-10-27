@@ -2,6 +2,8 @@ import {ILTL} from './js/LTL_interactive';
 import {GridPainter} from './js/GridPainter';
 import $ from 'jquery';
 
+import {LTLNode, LTLEngine} from '../behave/LTLNode';
+
 $(document).ready(() => {
     let s0, s1, replacing = false;
     let agent = new ILTL({
@@ -152,6 +154,16 @@ function log(str, color = 'white') {
     $logger.scrollTop(deltaH > -40 ? deltaH + 40 : 0);
 }
 
+window.LTLNode = LTLNode;
+window.LTLEngine = LTLEngine;
+let sample = LTLEngine.sampleTask3();
+let engine = new LTLEngine();
+window.engine = engine;
+engine.setTargetLTL(sample);
+engine.computeProbabilityTable();
+engine.generateMatrix();
+engine.computeValueIterationNetwork();
+engine.printMatrix();
 
 
 

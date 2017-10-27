@@ -546,7 +546,6 @@ export class ILTL {
                 }
             }
 
-
             return targetDest;
         }
 
