@@ -454,7 +454,7 @@ class LTLEngine {
                                 if (lResNode.val === 'acc' || rResNode.val === 'acc') {  // acc&acc, rej&acc, acc&S
                                     incMapVal(resMap, LTLNode.createAccNode(), lProb * rProb);
                                 } else if (lResNode.val === 'rej' && rResNode.val === 'rej') {  // rej&rej
-                                    incMapVal(resMap, LTLNode.createAccNode(), lProb * rProb);
+                                    incMapVal(resMap, LTLNode.createRejNode(), lProb * rProb);
                                 } else if (lResNode.type < 3 && rResNode.type < 3) {  // S1&S2
                                     tryAddToSubtaskList(LTLNode.or(lResNode, rResNode), this);
                                     incMapVal(resMap, LTLNode.or(lResNode, rResNode), lProb * rProb);
@@ -604,7 +604,7 @@ class LTLEngine {
         let B = LTLNode.createAtomNode(1);
         let C = LTLNode.createAtomNode(2);
 
-        return LTLNode.and(LTLNode.or(A, LTLNode.eventually(B)), LTLNode.always(LTLNode.not(C)));
+        return LTLNode.and(LTLNode.or(A, LTLNode.eventually(C)), LTLNode.always(LTLNode.not(B)));
     }
 }
 
