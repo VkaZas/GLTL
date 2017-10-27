@@ -155,7 +155,7 @@ let defaultLTLEngineProps = {
     mat : [],
     matrixSize : 5,
     valueMap : new Map(),  // node-pos hash
-    iterationTimes : 50,
+    iterationTimes : 500,
     nowPos : 0,
     nowTask : null,
     nowStack : []
@@ -167,8 +167,17 @@ class LTLEngine {
         Object.assign(this, props);
     }
 
-    generateMatrix() {
+    generateMatrix(fix=false) {
         let n = this.matrixSize;
+        if (fix) {
+            for (let i = 0; i < n*n; i++) this.mat[i] = '_';
+            this.mat[9] = 'B';
+            this.mat[17] = 'A';
+            this.mat[19] = 'C';
+            this.mat[5] = 'D';
+            return this.mat;
+        }
+
         let mat = [];
         let idx = [];
         for (let i=0; i<n*n; i++) idx.push(i);
@@ -531,14 +540,17 @@ class LTLEngine {
             for (let [key, {resNode, prob}] of nodeStateMap) {
                 let nowV = 0;
                 if (resNode.val === 'acc') {
-                    nowV = prob;
+                    nowV = 1;
                 } else if (resNode.val === 'rej') {
-                    nowV = -prob;
+                    nowV = -1;
                 } else {
                     let nodePosHash = LTLEngine._hashPos(resNode, dest);
                     nowV = prob * gama * this.valueMap.get(nodePosHash);
                 }
-                maxV = Math.max(maxV, nowV);
+                if (nowV > maxV) {
+                    maxV = Math.max(maxV, nowV);
+                }
+
             }
         }
         return maxV;
@@ -588,23 +600,45 @@ class LTLEngine {
         return node.toString() + ' POS ' + posIdx;
     }
 
+    /** always eventually (A and eventually B) **/
     static sampleTask1() {
         let A = LTLNode.createAtomNode(0),
             B = LTLNode.createAtomNode(1);
         return LTLNode.always(LTLNode.eventually(LTLNode.and(A, LTLNode.eventually(B))));
     }
 
+    /** (eventually A) and (eventually always B)**/
     static sampleTask2() {
         let A = LTLNode.createAtomNode(0);
-        return LTLNode.eventually(A);
+        let B = LTLNode.createAtomNode(1);
+        return LTLNode.and(LTLNode.eventually(A), LTLNode.eventually(LTLNode.always(B)));
     }
 
+    /** (A and eventually C) and always not B **/
     static sampleTask3() {
         let A = LTLNode.createAtomNode(0);
         let B = LTLNode.createAtomNode(1);
         let C = LTLNode.createAtomNode(2);
 
-        return LTLNode.and(LTLNode.or(A, LTLNode.eventually(C)), LTLNode.always(LTLNode.not(B)));
+        return LTLNode.and(LTLNode.and(A, LTLNode.eventually(C)), LTLNode.always(LTLNode.not(B)));
+    }
+
+    /** eventually A and (always not (B or C))**/
+    static sampleTask4() {
+        let A = LTLNode.createAtomNode(0);
+        let B = LTLNode.createAtomNode(1);
+        let C = LTLNode.createAtomNode(2);
+
+        return LTLNode.and(LTLNode.eventually(A), LTLNode.always(LTLNode.not(LTLNode.or(B, C))));
+    }
+
+    /** eventually (A and eventually C) and always not B **/
+    static sampleTask5() {
+        let A = LTLNode.createAtomNode(0);
+        let B = LTLNode.createAtomNode(1);
+        let C = LTLNode.createAtomNode(2);
+
+        return LTLNode.and(LTLNode.eventually(LTLNode.and(A, LTLNode.eventually(C))), LTLNode.always(LTLNode.not(B)));
     }
 }
 

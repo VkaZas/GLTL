@@ -156,7 +156,7 @@ function log(str, color = 'white') {
 
 window.LTLNode = LTLNode;
 window.LTLEngine = LTLEngine;
-let sample = LTLEngine.sampleTask3();
+let sample = LTLEngine.sampleTask5();
 let engine = new LTLEngine();
 window.engine = engine;
 engine.setTargetLTL(sample);
