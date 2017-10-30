@@ -158,7 +158,8 @@ let defaultLTLEngineProps = {
     iterationTimes : 500,
     nowPos : 0,
     nowTask : null,
-    nowStack : []
+    nowStack : [],
+    nowHistory : ''
 };
 
 class LTLEngine {
@@ -251,9 +252,21 @@ class LTLEngine {
         }
     }
 
-    setTargetLTL(node) {
+    setTargetLTL(node, createMat = true) {
         this.targetLTL = this.nowTask = node;
+
+        this.subTaskList = [];
+        this.nowStack = [];
+        this.nowHistory = '';
+        this.hashMap.clear();
+        this.valueMap.clear();
+
+        this.setAgentPosition(0);
+        this.setAgentTarget(node);
         this.subTaskList = this.targetLTL.getSubTrees();
+        this.computeProbabilityTable();
+        if (createMat) this.generateMatrix();
+        this.computeValueIterationNetwork();
     }
 
     setAgentPosition(posIdx) {
@@ -288,6 +301,10 @@ class LTLEngine {
                 maxV = nowV;
                 finalDest = dest;
             }
+        }
+
+        if (!finalDest) {
+            console.log("[Failed to find next step]: at position " + this.nowPos + ' with ' + this.nowTask.toString());
         }
 
         // decide next task by chance f(μ)
@@ -347,6 +364,11 @@ class LTLEngine {
 
             this.nowTask = nxtTask;
             this.nowPos = nxtPos;
+
+            let charCode = this.mat[nxtPos].charCodeAt(0);
+            if (charCode >= 65 && charCode <= 91) {
+                this.nowHistory += this.mat[nxtPos];
+            }
         }
     }
 

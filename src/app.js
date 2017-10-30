@@ -156,14 +156,14 @@ function log(str, color = 'white') {
 
 window.LTLNode = LTLNode;
 window.LTLEngine = LTLEngine;
-let sample = LTLEngine.sampleTask5();
+let sample = LTLEngine.sampleTask2();
 let engine = new LTLEngine();
 window.engine = engine;
 engine.setTargetLTL(sample);
-engine.computeProbabilityTable();
-engine.generateMatrix();
-engine.computeValueIterationNetwork();
-engine.printMatrix();
+// engine.computeProbabilityTable();
+// engine.generateMatrix();
+// engine.computeValueIterationNetwork();
+// engine.printMatrix();
 
 
 

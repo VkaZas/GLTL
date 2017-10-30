@@ -94,7 +94,7 @@ export class GridPainter {
         this.container.find('.grid-android').remove();
     }
 
-    moveAndroid(destIdx) {
+    moveAndroid(destIdx, cb = () => {}) {
         if (destIdx < 0) {
             if (destIdx === -2) this.setAndroidEmotion(0);
             else if (destIdx === -3) this.setAndroidEmotion(1);
@@ -104,7 +104,7 @@ export class GridPainter {
         this.android.animate({
             top: destPos.y + (this.gridSize - this.androidSize) / 2 + 'px',
             left: 5 + destPos.x + (this.gridSize - this.androidSize) / 2 + 'px'
-        }, 500, 'linear', this.displayMessage)
+        }, 500, 'linear', cb)
     }
 
     displayMessage() {
