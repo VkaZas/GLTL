@@ -752,9 +752,7 @@ export class ILTL {
         let nodeA = new Node(0, 'A');
         let nodeB = new Node(0, 'B');
 
-        let nodeLeft = ILTL.hypoAlways(ILTL.hypoEventually(ILTL.hypoAnd(nodeA, ILTL.hypoEventually(nodeB))));
-
-        return nodeLeft;
+        return ILTL.hypoAlways(ILTL.hypoEventually(ILTL.hypoAnd(nodeA, ILTL.hypoEventually(nodeB))));
     }
 }
 

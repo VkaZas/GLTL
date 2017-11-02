@@ -172,10 +172,10 @@ class LTLEngine {
         let n = this.matrixSize;
         if (fix) {
             for (let i = 0; i < n*n; i++) this.mat[i] = '_';
-            this.mat[9] = 'B';
-            this.mat[17] = 'A';
-            this.mat[19] = 'C';
-            this.mat[5] = 'D';
+            this.mat[2] = 'B';
+            this.mat[4] = 'A';
+            this.mat[6] = 'C';
+            this.mat[19] = 'D';
             return this.mat;
         }
 
@@ -264,8 +264,19 @@ class LTLEngine {
         this.setAgentPosition(0);
         this.setAgentTarget(node);
         this.subTaskList = this.targetLTL.getSubTrees();
+
+        // add trimmed tasks
+        let trimTaskList = [];
+        for (let subTask of this.subTaskList) {
+            let res = LTLEngine.getTrimSubTrees(subTask);
+            if (res.length > 0)
+                trimTaskList = _.concat(trimTaskList, res);
+        }
+        this.tryAddToSubtaskList(trimTaskList);
+        console.log('setTargetLTL after added trimNodes: ', this.subTaskList);
+
         this.computeProbabilityTable();
-        if (createMat) this.generateMatrix();
+        if (createMat) this.generateMatrix(true);
         this.computeValueIterationNetwork();
     }
 
@@ -277,10 +288,10 @@ class LTLEngine {
         this.nowTask = node;
     }
 
-    getAgentNextMove() {
-        let dests = this._getAvailableNextPositions(this.nowPos);
-        let state = this._posToState(this.nowPos);
-        let nodeStateMap = this.getNodeStateProbabilityTable(this.nowTask, state);
+    getAgentNextMove(startPos, startTask) {
+        let dests = this._getAvailableNextPositions(startPos);
+        let state = this._posToState(startPos);
+        let nodeStateMap = this.getNodeStateProbabilityTable(startTask, state);
 
         // calc best direction
         let finalDest = null, maxV = -100;
@@ -293,8 +304,11 @@ class LTLEngine {
                     nowV += prob;
                 } else if (resNode.val === 'rej') {
                     nowV += -prob;
-                } else
+                } else {
                     nowV += this.valueMap.get(nodePosHash) * prob;
+                    // console.log(nodePosHash, this.valueMap.get(nodePosHash));
+                }
+
             }
             // console.log(nowV);
             if (nowV > maxV) {
@@ -304,7 +318,9 @@ class LTLEngine {
         }
 
         if (!finalDest) {
-            console.log("[Failed to find next step]: at position " + this.nowPos + ' with ' + this.nowTask.toString());
+            console.log("[Failed to find next step]: at position " + startPos + ' with ' + startTask.toString());
+            // console.log('dests: ', dests);
+            // console.log('nodeStateMap', nodeStateMap);
         }
 
         // decide next task by chance f(μ)
@@ -322,8 +338,20 @@ class LTLEngine {
         return [finalDest, nxtTask];
     }
 
+    getOptionalNextMoves(startPos, startTask) {
+        let res = [];
+        let trimTreeList = LTLEngine.getTrimSubTrees(startTask);
+        console.log('Trim tree list: ', trimTreeList);
+        for (let trimTask of trimTreeList) {
+            let [trimNxtPos, ] = this.getAgentNextMove(startPos, trimTask);
+            res.push([trimTask, trimNxtPos]);
+        }
+        return res;
+    }
+
     moveAgentSteps(steps, log=true) {
         for (let i = 0; i < steps; i++) {
+            /** When a sub-task is completed(acc-ed or rej-ed), re-do it according to the type of the parent node of this sub-task(always or eventually) **/
             if (this.nowTask.type === 3 && this.nowStack.length > 0) {
                 let recoverTask = this.nowStack.pop();
                 let chance = Math.random();
@@ -348,14 +376,26 @@ class LTLEngine {
                 }
             }
 
+            /** Small chance to sudden acc/rej or (acc for eventually) or (rej for always) **/
             if (this.nowTask.type === 3) {
                 console.log("Terminated: " + this.nowTask.val);
                 return;
             }
 
 
-            let [nxtPos, nxtTask] = this.getAgentNextMove();
+            /** Calculate next move and its reason **/
+            let [nxtPos, nxtTask] = this.getAgentNextMove(this.nowPos, this.nowTask);
             console.log("[" + this.nowPos + ' ' + this.nowTask.toString() + "] => [" + nxtPos + ' ' + nxtTask.toString() + ']');
+
+            // find other optional next moves to find the reason for current move
+            let optionalNxtMoves = this.getOptionalNextMoves(this.nowPos, this.nowTask);
+            console.log('Optional next moves: ', optionalNxtMoves);
+            for (let [trimTask, trimNxtPos] of optionalNxtMoves) {
+                if (nxtPos !== trimNxtPos) {
+                    // TODO: there should be some function calls
+                    console.log('If my task were ' + trimTask.toString() + ', I would go ' + trimNxtPos);
+                }
+            }
 
             // exclude those small-chance direct acc/rej
             if ((this.nowTask.val === 'always' && nxtTask.val !== 'acc') || (this.nowTask.val === 'eventually' && nxtTask.val !== 'rej')) {
@@ -466,7 +506,7 @@ class LTLEngine {
                                 } else if (lResNode.val === 'acc' && rResNode.val === 'acc') {  // acc&acc
                                     incMapVal(resMap, LTLNode.createAccNode(), lProb * rProb);
                                 } else if (lResNode.type < 3 && rResNode.type < 3) {  // S1&S2
-                                    tryAddToSubtaskList(LTLNode.and(lResNode, rResNode), this);
+                                    this.tryAddToSubtaskList(LTLNode.and(lResNode, rResNode));
                                     incMapVal(resMap, LTLNode.and(lResNode, rResNode), lProb * rProb);
                                 } else if (lResNode.type < 3) {  // S1&acc
                                     incMapVal(resMap, lResNode, lProb * rProb);
@@ -487,7 +527,7 @@ class LTLEngine {
                                 } else if (lResNode.val === 'rej' && rResNode.val === 'rej') {  // rej&rej
                                     incMapVal(resMap, LTLNode.createRejNode(), lProb * rProb);
                                 } else if (lResNode.type < 3 && rResNode.type < 3) {  // S1&S2
-                                    tryAddToSubtaskList(LTLNode.or(lResNode, rResNode), this);
+                                    this.tryAddToSubtaskList(LTLNode.or(lResNode, rResNode));
                                     incMapVal(resMap, LTLNode.or(lResNode, rResNode), lProb * rProb);
                                 } else if (lResNode.type < 3) {  // S1&rej
                                     incMapVal(resMap, lResNode, lProb * rProb);
@@ -518,13 +558,7 @@ class LTLEngine {
             }
         }
 
-        function tryAddToSubtaskList(node, self) {
-            for (let subtask of self.subTaskList) {
-                if (subtask.toString() === node.toString()) return;
-            }
-            self.subTaskList.push(node);
-        }
-
+        /** To valid states to conform with atoms of the split sub-tree **/
         function extractState(state, atoms) {
             let res = state;
             for (let i = 0; i < 26; i++)
@@ -535,7 +569,30 @@ class LTLEngine {
         }
     }
 
+    /** During 'task transformation' and 'task trimming', some tasks that are not belong to original sub-tasks may occur. Add them to it.**/
+    tryAddToSubtaskList(node) {
+        if (node instanceof LTLNode) {  // single node
+            for (let subtask of this.subTaskList) {
+                if (subtask.toString() === node.toString()) return;
+            }
+            this.subTaskList.push(node);
+        } else if (node instanceof Array) {  // multiple nodes
+            for (let nowNode of node) {
+                let existed = false;
+                for (let subtask of this.subTaskList) {
+                    if (subtask.toString() === nowNode.toString()) {
+                        existed = true;
+                        break;
+                    }
+                }
+                if (!existed) this.subTaskList.push(nowNode);
+            }
+        }
+    }
+
+    /** Compute VIN with probability table and the given environment **/
     computeValueIterationNetwork() {
+        this.valueMap.clear();
         for (let i = 0; i < this.iterationTimes; i++) {
             let backupValueMap = _.cloneDeep(this.valueMap);
             for (let node of this.subTaskList) {
@@ -576,6 +633,61 @@ class LTLEngine {
             }
         }
         return maxV;
+    }
+
+    static getTrimSubTrees(node) {
+        let res = [];
+        let rootNode = _.cloneDeep(node);
+
+        trim(rootNode);
+        return res;
+
+        function trim(node) {
+            if (node.type === 1) {
+                if (node.pa === null) {
+                    res.push(node.lc.deepCopy());
+                } else {
+                    if (node === node.pa.lc) {
+                        node.pa.lc = node.lc;
+                        res.push(rootNode.deepCopy());
+                        node.pa.lc = node;
+                    } else {
+                        node.pa.rc = node.lc;
+                        res.push(rootNode.deepCopy());
+                        node.pa.rc = node;
+                    }
+                }
+                trim(node.lc);
+            } else if (node.type === 2) {
+                if (node.pa === null) {  // the root node
+                    res.push(node.lc.deepCopy());
+                    res.push(node.rc.deepCopy());
+                    trim(node.lc);
+                    trim(node.rc);
+                } else {
+                    if (node === node.pa.lc) {
+                        node.pa.lc = node.lc;
+                        res.push(rootNode.deepCopy());
+                        node.pa.lc = node;
+
+                        node.pa.lc = node.rc;
+                        res.push(rootNode.deepCopy());
+                        node.pa.lc = node;
+                    } else {
+                        node.pa.rc = node.lc;
+                        res.push(rootNode.deepCopy());
+                        node.pa.rc = node;
+
+                        node.pa.rc = node.rc;
+                        res.push(rootNode.deepCopy());
+                        node.pa.rc = node;
+                    }
+                    trim(node.lc);
+                    trim(node.rc);
+                }
+            }
+
+        }
     }
     
     _getAvailableNextPositions(posIdx) {
@@ -661,6 +773,14 @@ class LTLEngine {
         let C = LTLNode.createAtomNode(2);
 
         return LTLNode.and(LTLNode.eventually(LTLNode.and(A, LTLNode.eventually(C))), LTLNode.always(LTLNode.not(B)));
+    }
+
+    /** eventually A and always not B **/
+    static sampleTask6() {
+        let A = LTLNode.createAtomNode(0);
+        let B = LTLNode.createAtomNode(1);
+
+        return LTLNode.and(LTLNode.eventually(A), LTLNode.always(LTLNode.not(B)));
     }
 }
 

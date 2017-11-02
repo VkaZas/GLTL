@@ -2,7 +2,7 @@ import {LTLNode, LTLEngine} from '../behave/LTLNode';
 import {GridPainter} from './js/GridPainter';
 import $ from 'jquery';
 
-let sample = LTLEngine.sampleTask5();
+let sample = LTLEngine.sampleTask4();
 let engine = new LTLEngine();
 let nowPos = 0;
 let painter = new GridPainter($('#grid-container'), {
@@ -55,7 +55,7 @@ $(document).ready(() => {
 
 function moveAndroidSteps(steps) {
     for (let i = 0; i < steps; i++) {
-        let [nxtPos, ] = engine.getAgentNextMove();
+        let [nxtPos, ] = engine.getAgentNextMove(engine.nowPos, engine.nowTask);
         engine.moveAgentSteps(1);
         if (nxtPos === nowPos) {
             continue;
