@@ -350,6 +350,7 @@ class LTLEngine {
     }
 
     moveAgentSteps(steps, log=true) {
+        let logs = [];
         for (let i = 0; i < steps; i++) {
             /** When a sub-task is completed(acc-ed or rej-ed), re-do it according to the type of the parent node of this sub-task(always or eventually) **/
             if (this.nowTask.type === 3 && this.nowStack.length > 0) {
@@ -382,7 +383,6 @@ class LTLEngine {
                 return;
             }
 
-
             /** Calculate next move and its reason **/
             let [nxtPos, nxtTask] = this.getAgentNextMove(this.nowPos, this.nowTask);
             console.log("[" + this.nowPos + ' ' + this.nowTask.toString() + "] => [" + nxtPos + ' ' + nxtTask.toString() + ']');
@@ -395,7 +395,11 @@ class LTLEngine {
                 if (nxtPos !== trimNxtPos && !visited[trimNxtPos]) {
                     visited[trimNxtPos] = 1;
                     // TODO: there should be some function calls
-                    console.log('If my task were ' + trimTask.toString() + ', I would go ' + trimNxtPos);
+                    let logStr = 'If my task were ' + trimTask.toString() + ', I would go ' + trimNxtPos;
+                    if (trimNxtPos === this.nowPos)
+                        logStr = 'If my task were ' + trimTask.toString() + ', I would stay at ' + trimNxtPos;
+                    console.log(logStr);
+                    logs.push(logStr);
                 }
             }
 
@@ -412,6 +416,7 @@ class LTLEngine {
                 this.nowHistory += this.mat[nxtPos];
             }
         }
+        return logs;
     }
 
     computeProbabilityTable() {

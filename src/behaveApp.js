@@ -81,7 +81,7 @@ $(document).ready(() => {
 function moveAndroidSteps(steps) {
     for (let i = 0; i < steps; i++) {
         let [nxtPos, ] = engine.getAgentNextMove(engine.nowPos, engine.nowTask);
-        engine.moveAgentSteps(1);
+        let logs = engine.moveAgentSteps(1);
         if (nxtPos === nowPos) {
             continue;
         }
@@ -89,9 +89,11 @@ function moveAndroidSteps(steps) {
 
         });
         cleanLog();
-        log('My goal: ' + engine.targetLTL.toString());
+        log('My goal: ' + engine.targetLTL.toString(), 'skyblue');
         log('My current task: ' + engine.nowTask.toString());
-        log('I have been to: ' +engine.nowHistory);
+        for (let logItem of logs) {
+            log(logItem, 'lightgreen');
+        }
         setTimeout(() => {}, 500);
         nowPos = nxtPos;
     }
