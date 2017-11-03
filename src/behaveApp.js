@@ -19,6 +19,31 @@ let btnMv10 = $('#btn-mv10');
 let btnMv100 = $('#btn-mv100');
 let btnMv = $('#btn-mv');
 let taskList = [LTLEngine.sampleTask1(), LTLEngine.sampleTask2(), LTLEngine.sampleTask3(), LTLEngine.sampleTask4(), LTLEngine.sampleTask5()];
+let btnTask1 = $('#btn-task1');
+let btnTask2 = $('#btn-task2');
+let btnTask3 = $('#btn-task3');
+let btnTask4 = $('#btn-task4');
+let btnTask5 = $('#btn-task5');
+
+btnTask1.click(() => {
+    changeTask(0);
+});
+
+btnTask2.click(() => {
+    changeTask(1);
+});
+
+btnTask3.click(() => {
+    changeTask(2);
+});
+
+btnTask4.click(() => {
+    changeTask(3);
+});
+
+btnTask5.click(() => {
+    changeTask(4);
+});
 
 btnMv1.click(() => {
     moveAndroidSteps(1);

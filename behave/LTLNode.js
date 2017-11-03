@@ -389,9 +389,11 @@ class LTLEngine {
 
             // find other optional next moves to find the reason for current move
             let optionalNxtMoves = this.getOptionalNextMoves(this.nowPos, this.nowTask);
+            let visited = {};
             console.log('Optional next moves: ', optionalNxtMoves);
             for (let [trimTask, trimNxtPos] of optionalNxtMoves) {
-                if (nxtPos !== trimNxtPos) {
+                if (nxtPos !== trimNxtPos && !visited[trimNxtPos]) {
+                    visited[trimNxtPos] = 1;
                     // TODO: there should be some function calls
                     console.log('If my task were ' + trimTask.toString() + ', I would go ' + trimNxtPos);
                 }
