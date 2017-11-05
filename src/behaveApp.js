@@ -10,8 +10,7 @@ let painter = new GridPainter($('#grid-container'), {
         engine.setAgentPosition(index);
         engine.setTargetLTL(sample);
         painter.setAndroid(index);
-    },
-    height: 6
+    }
 });
 
 let btnMv1 = $('#btn-mv1');

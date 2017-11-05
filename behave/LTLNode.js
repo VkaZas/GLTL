@@ -171,20 +171,20 @@ class LTLEngine {
     generateMatrix(fix=false) {
         let n = this.matrixSize;
         if (fix) {
-            // for (let i = 0; i < n*n; i++) this.mat[i] = '_';
-            // this.mat[2] = 'B';
-            // this.mat[4] = 'A';
-            // this.mat[6] = 'C';
-            // this.mat[19] = 'D';
-            // return this.mat;
-
-            this.mat = ['B', 'B', 'B', 'B', 'B',
-                        'B', 'A', '_', '_', 'B',
-                        'B', '_', 'C', 'B', 'B',
-                        'B', '_', 'C', '_', 'B',
-                        'B', '_', 'D', '_', 'B',
-                        'B', '_', 'C', '_', 'B'];
+            for (let i = 0; i < n*n; i++) this.mat[i] = '_';
+            this.mat[2] = 'B';
+            this.mat[4] = 'A';
+            this.mat[6] = 'C';
+            this.mat[19] = 'D';
             return this.mat;
+
+            // this.mat = ['B', 'B', 'B', 'B', 'B',
+            //             'B', 'A', '_', '_', 'B',
+            //             'B', '_', 'C', 'B', 'B',
+            //             'B', '_', 'C', '_', 'B',
+            //             'B', '_', 'D', '_', 'B',
+            //             'B', '_', 'C', '_', 'B'];
+            // return this.mat;
         }
 
         let mat = [];
