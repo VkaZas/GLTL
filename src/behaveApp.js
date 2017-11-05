@@ -1,6 +1,7 @@
 import {LTLNode, LTLEngine} from '../behave/LTLNode';
 import {GridPainter} from './js/GridPainter';
 import $ from 'jquery';
+import _ from 'lodash';
 
 let sample = LTLEngine.sampleTask4();
 let engine = new LTLEngine();
@@ -76,7 +77,7 @@ $(document).ready(() => {
 
     painter.paintGrid();
     painter.paintMatrix(engine.mat);
-    painter.setAndroid(0);
+    changePosition(28);
 });
 
 function moveAndroidSteps(steps) {
@@ -111,6 +112,10 @@ function changePosition(pos) {
 }
 
 function log(str, color = 'white') {
+    str = _.replace(str, 'A', 'TARGET');
+    str = _.replace(str, 'B', 'LAVA');
+    str = _.replace(str, 'C', 'WALL');
+    str = _.replace(str, 'D', 'BLOCK');
     let $p = $('<p>' + str + '</p>'),
         $logger = $('#logger'),
         $logs = $('#logger-logs');

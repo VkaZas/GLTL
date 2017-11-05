@@ -60,8 +60,15 @@ export class GridPainter {
             for (let j = 0; j < this.width; j++) {
                 let index = i * this.width + j;
                 if (mat[index] === 'A' || mat[index] === 'B' ||
-                    mat[index] === 'C' || mat[index] === 'D')
-                    this._paintChar(index, mat[index]);
+                    mat[index] === 'C' || mat[index] === 'D') {
+                    // this._paintChar(index, mat[index]);
+                    let $grid = this.gridList[index];
+                    $grid.css('background-image', 'url(/LTL_by_human/img/material_' + mat[index] + '.png)')
+                } else {
+                    let $grid = this.gridList[index];
+                    $grid.css('background-image', 'url(/LTL_by_human/img/material_.png)')
+                }
+
             }
     }
 
