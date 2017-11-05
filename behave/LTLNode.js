@@ -154,6 +154,8 @@ let defaultLTLEngineProps = {
     hashMap : new Map(),  // node-state hash
     mat : [],
     matrixSize : 5,
+    height: 6,
+    width: 5,
     valueMap : new Map(),  // node-pos hash
     iterationTimes : 500,
     nowPos : 0,
@@ -349,7 +351,7 @@ class LTLEngine {
     getOptionalNextMoves(startPos, startTask) {
         let res = [];
         let trimTreeList = LTLEngine.getTrimSubTrees(startTask);
-        console.log('Trim tree list: ', trimTreeList);
+        // console.log('Trim tree list: ', trimTreeList);
         for (let trimTask of trimTreeList) {
             let [trimNxtPos, ] = this.getAgentNextMove(startPos, trimTask);
             res.push([trimTask, trimNxtPos]);
@@ -390,7 +392,6 @@ class LTLEngine {
                 console.log("Terminated: " + this.nowTask.val);
                 return;
             }
-
             /** Calculate next move and its reason **/
             let [nxtPos, nxtTask] = this.getAgentNextMove(this.nowPos, this.nowTask);
             console.log("[" + this.nowPos + ' ' + this.nowTask.toString() + "] => [" + nxtPos + ' ' + nxtTask.toString() + ']');
@@ -398,7 +399,7 @@ class LTLEngine {
             // find other optional next moves to find the reason for current move
             let optionalNxtMoves = this.getOptionalNextMoves(this.nowPos, this.nowTask);
             let visited = {};
-            console.log('Optional next moves: ', optionalNxtMoves);
+            // console.log('Optional next moves: ', optionalNxtMoves);
             for (let [trimTask, trimNxtPos] of optionalNxtMoves) {
                 if (nxtPos !== trimNxtPos && !visited[trimNxtPos]) {
                     visited[trimNxtPos] = 1;
@@ -611,7 +612,7 @@ class LTLEngine {
         for (let i = 0; i < this.iterationTimes; i++) {
             let backupValueMap = _.cloneDeep(this.valueMap);
             for (let node of this.subTaskList) {
-                for (let posIdx = 0; posIdx < this.matrixSize * this.matrixSize; posIdx++) {
+                for (let posIdx = 0; posIdx < 30; posIdx++) {
                     let nodePosHash = LTLEngine._hashPos(node, posIdx);
                     if (i === 0) backupValueMap.set(nodePosHash, 0);
                     else {
@@ -707,14 +708,14 @@ class LTLEngine {
     
     _getAvailableNextPositions(posIdx) {
         let dests = [posIdx];
-        if (posIdx % this.matrixSize !== 0)
+        if (posIdx % this.width !== 0)
             dests.push(posIdx - 1);
-        if (posIdx - this.matrixSize >= 0)
-            dests.push(posIdx - this.matrixSize);
-        if ((posIdx + 1) % this.matrixSize !== 0)
+        if (posIdx - this.width >= 0)
+            dests.push(posIdx - this.width);
+        if ((posIdx + 1) % this.width !== 0)
             dests.push(posIdx + 1);
-        if (posIdx + this.matrixSize < this.matrixSize * this.matrixSize)
-            dests.push(posIdx + this.matrixSize);
+        if (posIdx + this.width < this.width * this.height)
+            dests.push(posIdx + this.width);
         return dests;
     }
 
@@ -796,6 +797,17 @@ class LTLEngine {
         let B = LTLNode.createAtomNode(1);
 
         return LTLNode.and(LTLNode.eventually(A), LTLNode.always(LTLNode.not(B)));
+    }
+
+    /**  **/
+    static darpaTask1() {
+        let A = LTLNode.createAtomNode(0);
+        let B = LTLNode.createAtomNode(1);
+        let C = LTLNode.createAtomNode(2);
+        let D = LTLNode.createAtomNode(3);
+        let left = LTLNode.or(LTLNode.always(LTLNode.not(B)), LTLNode.eventually(LTLNode.and(D, LTLNode.eventually(B))));
+        let right = LTLNode.always(LTLNode.not(LTLNode.and(B, LTLNode.eventually(B))));
+        return LTLNode.and(LTLNode.and(LTLNode.and(left, right), LTLNode.eventually(A)), LTLNode.always(LTLNode.not(C)));
     }
 }
 

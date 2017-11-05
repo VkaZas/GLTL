@@ -3,7 +3,7 @@ import {GridPainter} from './js/GridPainter';
 import $ from 'jquery';
 import _ from 'lodash';
 
-let sample = LTLEngine.sampleTask4();
+let sample = LTLEngine.darpaTask1();
 let engine = new LTLEngine();
 let nowPos = 0;
 let painter = new GridPainter($('#grid-container'), {
@@ -83,6 +83,7 @@ $(document).ready(() => {
 function moveAndroidSteps(steps) {
     for (let i = 0; i < steps; i++) {
         let [nxtPos, ] = engine.getAgentNextMove(engine.nowPos, engine.nowTask);
+        console.log('nxtPos', nxtPos);
         let logs = engine.moveAgentSteps(1);
         if (nxtPos === nowPos) {
             continue;
@@ -112,10 +113,15 @@ function changePosition(pos) {
 }
 
 function log(str, color = 'white') {
-    str = _.replace(str, 'A', 'TARGET');
-    str = _.replace(str, 'B', 'LAVA');
-    str = _.replace(str, 'C', 'WALL');
-    str = _.replace(str, 'D', 'BLOCK');
+    // console.log('LOGGER', str);
+    while (str.indexOf('A') >= 0)
+        str = _.replace(str, 'A', 'dest');
+    while (str.indexOf('B') >= 0)
+        str = _.replace(str, 'B', 'lava');
+    while (str.indexOf('C') >= 0)
+        str = _.replace(str, 'C', 'wall');
+    while (str.indexOf('D') >= 0)
+        str = _.replace(str, 'D', 'block');
     let $p = $('<p>' + str + '</p>'),
         $logger = $('#logger'),
         $logs = $('#logger-logs');
