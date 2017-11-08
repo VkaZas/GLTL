@@ -2,7 +2,7 @@ import {LTLNode, LTLEngine} from '../behave/LTLNode';
 import {GridPainter} from './js/GridPainter';
 import $ from 'jquery';
 
-let sample = LTLEngine.sampleTask4();
+let sample = LTLEngine.sampleTaskNext();
 let engine = new LTLEngine();
 let nowPos = 0;
 let painter = new GridPainter($('#grid-container'), {

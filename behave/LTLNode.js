@@ -117,6 +117,15 @@ class LTLNode {
         return res;
     }
 
+    static next(node) {
+        let res = new LTLNode({
+            type : 1,
+            val : 'next'
+        });
+        res.addLc(node);
+        return res;
+    }
+
     static not(node) {
         let res = new LTLNode({
             type : 1,
@@ -320,13 +329,14 @@ class LTLEngine {
             }
             // console.log(nowV);
             if (nowV > maxV) {
+                // console.log('nowV', nowV);
                 maxV = nowV;
                 finalDest = dest;
             }
         }
 
-        if (!finalDest) {
-            console.log("[Failed to find next step]: at position " + startPos + ' with ' + startTask.toString());
+        if (finalDest === null) {
+            console.log("[Failed to find next step]: at position " + startPos + ' with ' + startTask.toString(), finalDest);
             // console.log('dests: ', dests);
             // console.log('nodeStateMap', nodeStateMap);
         }
@@ -349,7 +359,7 @@ class LTLEngine {
     getOptionalNextMoves(startPos, startTask) {
         let res = [];
         let trimTreeList = LTLEngine.getTrimSubTrees(startTask);
-        console.log('Trim tree list: ', trimTreeList);
+        // console.log('Trim tree list: ', trimTreeList);
         for (let trimTask of trimTreeList) {
             let [trimNxtPos, ] = this.getAgentNextMove(startPos, trimTask);
             res.push([trimTask, trimNxtPos]);
@@ -398,7 +408,7 @@ class LTLEngine {
             // find other optional next moves to find the reason for current move
             let optionalNxtMoves = this.getOptionalNextMoves(this.nowPos, this.nowTask);
             let visited = {};
-            console.log('Optional next moves: ', optionalNxtMoves);
+            // console.log('Optional next moves: ', optionalNxtMoves);
             for (let [trimTask, trimNxtPos] of optionalNxtMoves) {
                 if (nxtPos !== trimNxtPos && !visited[trimNxtPos]) {
                     visited[trimNxtPos] = 1;
@@ -485,6 +495,22 @@ class LTLEngine {
                                 incMapVal(resMap, resNode, prob * miu)
                             }
                         }
+                        break;
+                    case 'next':
+                        // for (let key of childRes.keys()) {
+                        //     let {resNode, prob} = childRes.get(key);
+                        //     // if (resNode.type === 3) {
+                        //     //     if (resNode.val === 'acc') {
+                        //     //         incMapVal(resMap, LTLNode.createAccNode(), prob);
+                        //     //     } else {
+                        //     //         incMapVal(resMap, LTLNode.createRejNode(), prob);
+                        //     //     }
+                        //     // } else {
+                        //     //     incMapVal(resMap, resNode, prob);
+                        //     // }
+                        //     incMapVal(resMap, resNode, prob);
+                        // }
+                        incMapVal(resMap, node.lc, 1);
                         break;
                     case 'not':
                         for (let key of childRes.keys()) {
@@ -796,6 +822,12 @@ class LTLEngine {
         let B = LTLNode.createAtomNode(1);
 
         return LTLNode.and(LTLNode.eventually(A), LTLNode.always(LTLNode.not(B)));
+    }
+
+    static sampleTaskNext() {
+        let A = LTLNode.createAtomNode(0);
+        return LTLNode.eventually(LTLNode.and(A, LTLNode.next(LTLNode.not(A))));
+        // return LTLNode.next(LTLNode.not(A));
     }
 }
 
