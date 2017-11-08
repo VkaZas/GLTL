@@ -117,6 +117,15 @@ class LTLNode {
         return res;
     }
 
+    static next(node) {
+        let res = new LTLNode({
+            type : 1,
+            val : 'next'
+        });
+        res.addLc(node);
+        return res;
+    }
+
     static not(node) {
         let res = new LTLNode({
             type : 1,
@@ -487,6 +496,9 @@ class LTLEngine {
                             }
                         }
                         break;
+                    case 'next':
+                        incMapVal(resMap, node.lc, 1);
+                        break;
                     case 'not':
                         for (let key of childRes.keys()) {
                             let {resNode, prob} = childRes.get(key);
@@ -806,7 +818,7 @@ class LTLEngine {
         let C = LTLNode.createAtomNode(2);
         let D = LTLNode.createAtomNode(3);
         let left = LTLNode.or(LTLNode.always(LTLNode.not(B)), LTLNode.eventually(LTLNode.and(D, LTLNode.eventually(B))));
-        let right = LTLNode.always(LTLNode.not(LTLNode.and(B, LTLNode.eventually(B))));
+        let right = LTLNode.always(LTLNode.not(LTLNode.and(B, LTLNode.next(LTLNode.eventually(B)))));
         return LTLNode.and(LTLNode.and(LTLNode.and(left, right), LTLNode.eventually(A)), LTLNode.always(LTLNode.not(C)));
     }
 }
