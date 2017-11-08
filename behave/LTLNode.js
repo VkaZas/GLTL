@@ -190,7 +190,7 @@ class LTLEngine {
             // return this.mat;
 
             this.mat = ['B', 'B', 'B', 'B', 'B',
-                        'B', 'A', '_', '_', 'B',
+                        'B', '_', '_', 'A', 'B',
                         'B', '_', 'C', 'B', 'B',
                         'B', '_', 'C', '_', 'B',
                         'B', '_', 'D', '_', 'B',
@@ -509,7 +509,7 @@ class LTLEngine {
                                     incMapVal(resMap, LTLNode.createAccNode(), prob);
                                 }
                             } else {
-                                incMapVal(resMap, resNode, prob);
+                                incMapVal(resMap, LTLNode.not(resNode), prob);
                             }
                         }
                         break;
