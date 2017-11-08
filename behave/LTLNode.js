@@ -167,6 +167,7 @@ let defaultLTLEngineProps = {
     width: 5,
     valueMap : new Map(),  // node-pos hash
     iterationTimes : 500,
+    iterationThreshold: 0.0005,
     nowPos : 0,
     nowTask : null,
     nowStack : [],
@@ -325,11 +326,11 @@ class LTLEngine {
                     nowV += -prob;
                 } else {
                     nowV += this.valueMap.get(nodePosHash) * prob;
-                    // console.log(nodePosHash, this.valueMap.get(nodePosHash));
+                    console.log(nodePosHash, this.valueMap.get(nodePosHash));
                 }
 
             }
-            // console.log(nowV);
+            console.log(nowV);
             if (nowV > maxV) {
                 maxV = nowV;
                 finalDest = dest;
@@ -622,18 +623,26 @@ class LTLEngine {
     computeValueIterationNetwork() {
         this.valueMap.clear();
         for (let i = 0; i < this.iterationTimes; i++) {
+            let terminate = true;
             let backupValueMap = _.cloneDeep(this.valueMap);
             for (let node of this.subTaskList) {
                 for (let posIdx = 0; posIdx < 30; posIdx++) {
                     let nodePosHash = LTLEngine._hashPos(node, posIdx);
-                    if (i === 0) backupValueMap.set(nodePosHash, 0);
+                    if (i === 0) {
+                        backupValueMap.set(nodePosHash, 0);
+                        terminate = false;
+                    }
                     else {
-                        let value = this.getNodePosValueIteration(node, posIdx);
+                        let value = this.getNodePosValueIteration(node, posIdx),
+                            preValue = this.valueMap.get(nodePosHash);
+                        if (Math.abs(value - preValue) > this.iterationThreshold)
+                            terminate = false;
                         backupValueMap.set(nodePosHash, value);
                     }
                 }
             }
             this.valueMap = backupValueMap;
+            if (terminate) break;
         }
     }
 
