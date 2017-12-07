@@ -154,6 +154,16 @@ class LTLNode {
         res.addRc(rNode);
         return res;
     }
+
+    static until(lNode, rNode) {
+        let res = new LTLNode({
+            type : 2,
+            val : 'until'
+        });
+        res.addLc(lNode);
+        res.addRc(rNode);
+        return res;
+    }
 }
 
 let defaultLTLEngineProps = {
@@ -192,7 +202,7 @@ class LTLEngine {
 
             this.mat = ['B', 'B', 'B', 'B', 'B',
                         'B', '_', '_', 'A', 'B',
-                        'B', '_', 'C', 'B', 'B',
+                        'B', '_', 'B', 'B', 'B',
                         'B', '_', 'C', '_', 'B',
                         'B', '_', 'D', '_', 'B',
                         'B', '_', 'C', '_', 'B'];
@@ -566,6 +576,43 @@ class LTLEngine {
                             }
                         }
                         break;
+                    case 'until':
+                        for (let [lKey, lVal] of lcRes) {
+                            let lResNode = lVal.resNode, lProb = lVal.prob;
+                            for (let [rKey, rVal] of rcRes) {
+                                let rResNode = rVal.resNode, rProb = rVal.prob;
+                                let prob = lProb * rProb;
+
+                                if (lResNode.val === 'acc') {
+                                    if (rResNode.val === 'acc') {
+                                        incMapVal(resMap, LTLNode.createAccNode(), prob);
+                                    } else if (rResNode.val === 'rej') {
+                                        incMapVal(resMap, node, prob * miu);
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                                    } else {
+                                        incMapVal(resMap, LTLNode.until(node.lc, rResNode), prob * miu);
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                                    }
+                                } else if (lResNode.val === 'rej') {
+                                    if (rResNode.val === 'acc') {
+                                        incMapVal(resMap, LTLNode.createAccNode(), prob);
+                                    } else {
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob);
+                                    }
+                                } else {
+                                    if (rResNode.val === 'acc') {
+                                        incMapVal(resMap, LTLNode.createAccNode(), prob);
+                                    } else if (rResNode.val === 'rej') {
+                                        incMapVal(resMap, LTLNode.until(lResNode, node.rc), prob * miu);
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                                    } else {
+                                        incMapVal(resMap, LTLNode.until(lResNode, rResNode), prob * miu);
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                                    }
+                                }
+                            }
+                        }
+                        break;
                 }
 
         }
@@ -829,6 +876,15 @@ class LTLEngine {
         let left = LTLNode.or(LTLNode.always(LTLNode.not(B)), LTLNode.eventually(LTLNode.and(D, LTLNode.eventually(B))));
         let right = LTLNode.always(LTLNode.not(LTLNode.and(B, LTLNode.next(LTLNode.eventually(B)))));
         return LTLNode.and(LTLNode.and(LTLNode.and(left, right), LTLNode.eventually(A)), LTLNode.always(LTLNode.not(C)));
+    }
+
+    /** eventually A and (not B until D) **/
+    static darpaTask2() {
+        let A = LTLNode.createAtomNode(0);
+        let B = LTLNode.createAtomNode(1);
+        let C = LTLNode.createAtomNode(2);
+        let D = LTLNode.createAtomNode(3);
+        return LTLNode.and(LTLNode.eventually(A), LTLNode.until(LTLNode.not(B), D));
     }
 }
 
