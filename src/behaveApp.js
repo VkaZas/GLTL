@@ -17,7 +17,7 @@ let btnMv1 = $('#btn-mv1');
 let btnMv5 = $('#btn-mv5');
 let btnMv10 = $('#btn-mv10');
 let btnMv100 = $('#btn-mv100');
-let btnMv = $('#btn-mv');
+let btnTips = $('#btn-tips');
 let taskList = [LTLEngine.sampleTask1(), LTLEngine.sampleTask2(), LTLEngine.sampleTask3(), LTLEngine.sampleTask4(), LTLEngine.sampleTask5()];
 let btnTask1 = $('#btn-task1');
 let btnTask2 = $('#btn-task2');
@@ -61,8 +61,8 @@ btnMv100.click(() => {
     moveAndroidSteps(100);
 });
 
-btnMv.click(() => {
-    moveAndroidSteps(1000);
+btnTips.click(() => {
+    log('My current task: ' + engine.nowTask.toString());
 });
 
 $(document).ready(() => {
@@ -89,11 +89,11 @@ function moveAndroidSteps(steps) {
 
         });
         cleanLog();
-        log('My goal: ' + engine.targetLTL.toString(), 'skyblue');
-        log('My current task: ' + engine.nowTask.toString());
-        for (let logItem of logs) {
-            log(logItem, 'lightgreen');
-        }
+        // log('My goal: ' + engine.targetLTL.toString(), 'skyblue');
+        // log('My current task: ' + engine.nowTask.toString());
+        // for (let logItem of logs) {
+        //     log(logItem, 'lightgreen');
+        // }
         setTimeout(() => {}, 500);
         nowPos = nxtPos;
     }
