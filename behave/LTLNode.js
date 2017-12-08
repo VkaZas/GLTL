@@ -154,6 +154,16 @@ class LTLNode {
         res.addRc(rNode);
         return res;
     }
+
+    static until(lNode, rNode) {
+        let res = new LTLNode({
+            type : 2,
+            val : 'until'
+        });
+        res.addLc(lNode);
+        res.addRc(rNode);
+        return res;
+    }
 }
 
 let defaultLTLEngineProps = {
@@ -574,6 +584,43 @@ class LTLEngine {
                                     incMapVal(resMap, lResNode, lProb * rProb);
                                 } else {  // rej&S2
                                     incMapVal(resMap, rResNode, lProb * rProb);
+                                }
+                            }
+                        }
+                        break;
+                    case 'until':
+                        for (let [lKey, lVal] of lcRes) {
+                            let lResNode = lVal.resNode, lProb = lVal.prob;
+                            for (let [rKey, rVal] of rcRes) {
+                                let rResNode = rVal.resNode, rProb = rVal.prob;
+                                let prob = lProb * rProb;
+
+                                if (lResNode.val === 'acc') {
+                                    if (rResNode.val === 'acc') {
+                                        incMapVal(resMap, LTLNode.createAccNode(), prob);
+                                    } else if (rResNode.val === 'rej') {
+                                        incMapVal(resMap, node, prob * miu);
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                                    } else {
+                                        incMapVal(resMap, LTLNode.until(node.lc, rResNode), prob * miu);
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                                    }
+                                } else if (lResNode.val === 'rej') {
+                                    if (rResNode.val === 'acc') {
+                                        incMapVal(resMap, LTLNode.createAccNode(), prob);
+                                    } else {
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob);
+                                    }
+                                } else {
+                                    if (rResNode.val === 'acc') {
+                                        incMapVal(resMap, LTLNode.createAccNode(), prob);
+                                    } else if (rResNode.val === 'rej') {
+                                        incMapVal(resMap, LTLNode.until(lResNode, node.rc), prob * miu);
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                                    } else {
+                                        incMapVal(resMap, LTLNode.until(lResNode, rResNode), prob * miu);
+                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                                    }
                                 }
                             }
                         }
