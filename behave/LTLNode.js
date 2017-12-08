@@ -303,7 +303,7 @@ class LTLEngine {
         console.log('setTargetLTL after added trimNodes: ', this.subTaskList);
 
         this.computeProbabilityTable();
-        if (createMat) this.generateMatrix(true);
+        if (createMat) this.generateMatrix();
         this.computeValueIterationNetwork();
     }
 
@@ -876,6 +876,16 @@ class LTLEngine {
         return LTLNode.eventually(LTLNode.and(A, LTLNode.next(LTLNode.not(A))));
         // return LTLNode.next(LTLNode.not(A));
     }
+
+    /** eventually A and (not B until D) **/
+    static darpaTask2() {
+        let A = LTLNode.createAtomNode(0);
+        let B = LTLNode.createAtomNode(1);
+        let C = LTLNode.createAtomNode(2);
+        let D = LTLNode.createAtomNode(3);
+        return LTLNode.and(LTLNode.eventually(A), LTLNode.until(LTLNode.not(B), D));
+    }
+
 }
 
 export {LTLNode, LTLEngine};
