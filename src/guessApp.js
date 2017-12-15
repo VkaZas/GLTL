@@ -20,7 +20,7 @@ let painterRight = new GridPainter($('#guess-container'));
 // Buttons
 let btnMove = $('#btn-move');
 let btnChangeTask = $('#btn-change-task');
-let btnChangeMap = $('#btn-change-Map');
+let btnChangeMap = $('#btn-change-map');
 let btnTips = $('#btn-tips');
 let btnGuess = $('#btn-guess');
 
