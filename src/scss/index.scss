@@ -6,7 +6,7 @@ html, body {
 }
 
 body {
-  padding-top: 100px;
+
 }
 
 .container {
@@ -14,7 +14,9 @@ body {
   max-width: 1920px !important;
 
   .row {
-
+    h3 {
+      margin-left: 20px;
+    }
   }
 
 }

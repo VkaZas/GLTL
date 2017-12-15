@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LTL Guess</title>
+    <link href="dist/css/GridPainter.css" rel="stylesheet">
+    <link href="dist/css/index.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <h3 id="title">Task 1</h3>
+    </div>
+    <div class="row">
+        <!--Watch-->
+        <div id="watch-container" class="col m5">
+
+        </div>
+        <!--Operate-->
+        <div id="operation-container" class="col m2">
+            <div class="row">
+                <div class="col m12"><a class="waves-effect waves-light btn" id="btn-move">Move</a></div>
+            </div>
+            <div class="row">
+                <div class="col m12"><a class="waves-effect waves-light btn" id="btn-change-task">Change Task</a></div>
+            </div>
+            <div class="row">
+                <div class="col m12"><a class="waves-effect waves-light btn" id="btn-change-map">Change Map</a></div>
+            </div>
+            <div class="row">
+                <div class="col m12"><a class="waves-effect waves-light btn" id="btn-guess">Guess!</a></div>
+            </div>
+            <div class="row">
+                <div class="col m12"><a class="waves-effect waves-light btn" id="btn-tips">Tips</a></div>
+            </div>
+            <div class="row">
+                <div class="col m12" id="tips"></div>
+            </div>
+        </div>
+        <!--Guess-->
+        <div id="guess-container" class="col m5">
+
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<script src="dist/guessApp.js"></script>
+<script>
+    $('#btn-tips').click(() => {
+        Materialize.toast(nowTips, 10000);
+    });
+</script>
+</body>
+</html>

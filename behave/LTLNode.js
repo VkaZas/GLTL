@@ -282,6 +282,7 @@ class LTLEngine {
     setTargetLTL(node, createMat = true) {
         this.targetLTL = this.nowTask = node;
 
+        this.state = 0;
         this.subTaskList = [];
         this.nowStack = [];
         this.nowHistory = '';
@@ -379,7 +380,7 @@ class LTLEngine {
 
     moveAgentSteps(steps, log=true) {
         let logs = [];
-        for (let i = 0; i < steps; i++) {
+        for (let i = 0; i < steps;) {
             /** When a sub-task is completed(acc-ed or rej-ed), re-do it according to the type of the parent node of this sub-task(always or eventually) **/
             if (this.nowTask.type === 3 && this.nowStack.length > 0) {
                 let recoverTask = this.nowStack.pop();
@@ -438,13 +439,14 @@ class LTLEngine {
 
             this.nowTask = nxtTask;
             this.nowPos = nxtPos;
+            if (nxtTask.type !== 3) i++;
 
             let charCode = this.mat[nxtPos].charCodeAt(0);
             if (charCode >= 65 && charCode <= 91) {
                 this.nowHistory += this.mat[nxtPos];
             }
         }
-        return logs;
+        return [logs, this.nowPos];
     }
 
     computeProbabilityTable() {
