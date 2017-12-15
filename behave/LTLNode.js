@@ -61,6 +61,12 @@ class LTLNode {
     toString(log = false) {
         if (this.type === 0) {
             let char = String.fromCharCode(this.val + 65);
+
+            if (char === 'A') char = 'go to desk';
+            else if (char === 'B') char = 'go to chair';
+            else if (char === 'C') char = 'go to outlet';
+            else if (char === 'C') char = 'go to fridge';
+
             if (!this.pa)
                 if (log) console.log(char);
             return char;

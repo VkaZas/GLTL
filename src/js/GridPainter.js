@@ -13,7 +13,9 @@ export class GridPainter {
         this.androidSize = 75;
         this.android = $('<div></div>').addClass('grid-android').css({
             height: this.androidSize + 'px',
-            width: this.androidSize + 'px'
+            width: this.androidSize + 'px',
+            'background-image' : 'url(/LTL_by_human/img/bot.jpg)',
+            'background-size' : 'contain'
         });
         this.freeze = false;
 
@@ -60,8 +62,20 @@ export class GridPainter {
             for (let j = 0; j < this.width; j++) {
                 let index = i * this.width + j;
                 if (mat[index] === 'A' || mat[index] === 'B' ||
-                    mat[index] === 'C' || mat[index] === 'D')
-                    this._paintChar(index, mat[index]);
+                    mat[index] === 'C' || mat[index] === 'D') {
+                    // this._paintChar(index, mat[index]);
+                    let $grid = this.gridList[index];
+                    $grid.css({
+                        'background-image': 'url(/LTL_by_human/img/material_' + mat[index] + '.jpg)',
+                        'background-size' : 'contain'
+                    });
+                } else {
+                    let $grid = this.gridList[index];
+                    $grid.css({
+                        'background-image': 'url(/LTL_by_human/img/material.jpg)',
+                        'background-size' : 'contain'
+                    });
+                }
             }
     }
 

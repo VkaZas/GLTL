@@ -7,7 +7,7 @@ const guessMaxStep = 10;
 let currentTaskIdx = 0;
 let nowPos = 0;
 let rightNowPos = 0;
-let nowTips = '';
+let nowTips = '', nowTips2 = '';
 let guessPath = '';
 let truePath = '';
 let guessMode = false;
@@ -22,6 +22,7 @@ let btnMove = $('#btn-move');
 let btnChangeTask = $('#btn-change-task');
 let btnChangeMap = $('#btn-change-map');
 let btnTips = $('#btn-tips');
+let btnTips2 = $('#btn-tips2');
 let btnGuess = $('#btn-guess');
 
 let title = $('#title');
@@ -45,6 +46,12 @@ btnGuess.click(() => {
 
 btnTips.click(() => {
     $('#tips').html(nowTips);
+});
+
+btnTips2.click(() => {
+    let str = '';
+    for (let log of nowTips2) str += '<p>' + log + '</p>';
+    $('#tips2').html(str);
 });
 
 $(document).ready(() => {
@@ -127,8 +134,10 @@ function moveAndroidSteps(steps) {
         });
         setTimeout(() => {}, 500);
         nowPos = nxtPos;
+        nowTips2 = logs;
     }
     nowTips = 'Current Task: ' + engineLeft.nowTask.toString();
+
 }
 
 function calcAndroidPath(steps) {
