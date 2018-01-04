@@ -267,6 +267,8 @@ export class ILTL {
             }
         }
 
+        console.log('[next state]:', nextState);
+
         if (nextState !== null) return nextState;
         else {
             console.log('DEAD!!');

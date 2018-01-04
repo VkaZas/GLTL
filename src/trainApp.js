@@ -2,7 +2,14 @@ import {ILTL} from './js/LTL_interactive';
 import {GridPainter} from './js/GridPainter';
 import $ from 'jquery';
 
-import {LTLNode, LTLEngine} from '../behave/LTLNode';
+const uid = uuid(10, 16);
+const url = 'http://localhost:3000';
+
+let $btnPositive = $('#btn-positive'),
+    $btnNegative = $('#btn-negative'),
+    $btnReplace = $('#btn-replace'),
+    $btnReset = $('#btn-reset'),
+    $btnRevert = $('#btn-revert');
 
 $(document).ready(() => {
     let s0, s1, replacing = false;
@@ -17,10 +24,10 @@ $(document).ready(() => {
             s1 = agent.calcNextMove(s0);
             // console.log(s1);
             if (s1.term === -1) {
-                s1.s1 = index;
+                // s1.s1 = index;
                 painter.setAndroidEmotion(1);
             } else if (s1.term === 1) {
-                s1.s1 = index;
+                // s1.s1 = index;
                 painter.setAndroidEmotion(0);
             } else {
                 painter.setAndroidEmotion(2);
@@ -33,12 +40,6 @@ $(document).ready(() => {
             displayPrediction(s1);
         }
     });
-
-    let $btnPositive = $('#btn-positive'),
-        $btnNegative = $('#btn-negative'),
-        $btnReplace = $('#btn-replace'),
-        $btnReset = $('#btn-reset'),
-        $btnRevert = $('#btn-revert');
 
     $btnPositive.click(() => {
         let res = agent.filterByFeedback(true, s1);
@@ -68,6 +69,23 @@ $(document).ready(() => {
             painter.unfreezePainter();
             replacing = false;
         }
+
+        $.ajax({
+            url : url + '/addUserTrain',
+            type: 'POST',
+            async: 'true',
+            data: {
+                uid : uid,
+                tid : 3,
+                ctask : agent.currentTask,
+                move : `${s0.s1}->${s1.s1}`,
+                agree : 1
+            },
+            dataType: 'json',
+            success: (res) => {
+                console.log('ajax!!',res);
+            }
+        });
     });
 
     $btnNegative.click(() => {
@@ -97,6 +115,23 @@ $(document).ready(() => {
             painter.unfreezePainter();
             replacing = false;
         }
+
+        $.ajax({
+            url : url + '/addUserTrain',
+            type: 'POST',
+            async: 'true',
+            data: {
+                uid : uid,
+                tid : 3,
+                ctask : agent.currentTask,
+                move : `${s0.s1}->${s1.s1}`,
+                agree : 0
+            },
+            dataType: 'json',
+            success: (res) => {
+                console.log('ajax!!',res);
+            }
+        });
     });
 
     $btnReplace.click(() => {
@@ -154,16 +189,34 @@ function log(str, color = 'white') {
     $logger.scrollTop(deltaH > -40 ? deltaH + 40 : 0);
 }
 
-window.LTLNode = LTLNode;
-window.LTLEngine = LTLEngine;
-let sample = LTLEngine.sampleTask2();
-let engine = new LTLEngine();
-window.engine = engine;
-engine.setTargetLTL(sample);
-// engine.computeProbabilityTable();
-// engine.generateMatrix();
-// engine.computeValueIterationNetwork();
-// engine.printMatrix();
+function uuid(len, radix) {
+    var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split('');
+    var uuid = [], i;
+    radix = radix || chars.length;
+
+    if (len) {
+        // Compact form
+        for (i = 0; i < len; i++) uuid[i] = chars[0 | Math.random()*radix];
+    } else {
+        // rfc4122, version 4 form
+        var r;
+
+        // rfc4122 requires these characters
+        uuid[8] = uuid[13] = uuid[18] = uuid[23] = '-';
+        uuid[14] = '4';
+
+        // Fill in random data.  At i==19 set the high bits of clock sequence as
+        // per rfc4122, sec. 4.1.5
+        for (i = 0; i < 36; i++) {
+            if (!uuid[i]) {
+                r = 0 | Math.random()*16;
+                uuid[i] = chars[(i == 19) ? (r & 0x3) | 0x8 : r];
+            }
+        }
+    }
+
+    return uuid.join('');
+}
 
 
 

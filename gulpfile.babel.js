@@ -1,20 +1,20 @@
-let gulp        = require('gulp');
+const gulp        = require('gulp');
 
-let browserify  = require('browserify');
-let babelify    = require('babelify');
-let source      = require('vinyl-source-stream');
-let buffer      = require('vinyl-buffer');
-let uglify      = require('gulp-uglify');
-let sourcemaps  = require('gulp-sourcemaps');
-let livereload  = require('gulp-livereload');
-let sass        = require('gulp-sass');
+const browserify  = require('browserify');
+const babelify    = require('babelify');
+const source      = require('vinyl-source-stream');
+const buffer      = require('vinyl-buffer');
+const uglify      = require('gulp-uglify');
+const sourcemaps  = require('gulp-sourcemaps');
+const livereload  = require('gulp-livereload');
+const sass        = require('gulp-sass');
 
 gulp.task('build', () => {
     // app.js is your main JS file with all your module inclusions
-    return browserify({entries: './src/app.js', debug: true})
+    return browserify({entries: './src/trainApp.js', debug: true})
         .transform("babelify", { presets: ["es2015"] })
         .bundle()
-        .pipe(source('app.js'))
+        .pipe(source('trainApp.js'))
         .pipe(buffer())
         .pipe(sourcemaps.init())
         .pipe(sourcemaps.write('./maps'))

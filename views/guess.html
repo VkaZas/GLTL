@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>LTL Guess</title>
-    <link href="dist/css/GridPainter.css" rel="stylesheet">
-    <link href="dist/css/index.css" rel="stylesheet">
+    <link href="/static/css/GridPainter.css" rel="stylesheet">
+    <link href="/static/css/index.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
 </head>
 <body>
@@ -38,7 +38,7 @@
                 <div class="col m12" id="tips"></div>
             </div>
             <div class="row">
-                <div class="col m12"><a class="waves-effect waves-light btn" id="btn-tips2">Tips2</a></div>
+                <div class="col m12"><a class="waves-effect waves-light btn" id="btn-submit">Submit</a></div>
             </div>
             <div class="row">
                 <div class="col m12" id="tips2" style="overflow-y: scroll"></div>
@@ -54,11 +54,9 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
-<script src="dist/guessApp.js"></script>
+<script src="/static/guessApp.js"></script>
 <script>
-    $('#btn-tips').click(() => {
-        Materialize.toast(nowTips, 10000);
-    });
+
 </script>
 </body>
 </html>

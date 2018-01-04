@@ -14,7 +14,7 @@ export class GridPainter {
         this.android = $('<div></div>').addClass('grid-android').css({
             height: this.androidSize + 'px',
             width: this.androidSize + 'px',
-            'background-image' : 'url(/LTL_by_human/img/bot.jpg)',
+            'background-image' : 'url(/static/bot.jpg)',
             'background-size' : 'contain'
         });
         this.freeze = false;
@@ -66,13 +66,13 @@ export class GridPainter {
                     // this._paintChar(index, mat[index]);
                     let $grid = this.gridList[index];
                     $grid.css({
-                        'background-image': 'url(/LTL_by_human/img/material_' + mat[index] + '.jpg)',
+                        'background-image': 'url(/static/material_' + mat[index] + '.jpg)',
                         'background-size' : 'contain'
                     });
                 } else {
                     let $grid = this.gridList[index];
                     $grid.css({
-                        'background-image': 'url(/LTL_by_human/img/material.jpg)',
+                        'background-image': 'url(/static/material.jpg)',
                         'background-size' : 'contain'
                     });
                 }
@@ -138,6 +138,6 @@ export class GridPainter {
         if (emotion === 0) clr = 'green';
         else if(emotion === 1) clr = 'red';
         else clr = 'orange';
-        this.android.css('background-color', clr)
+        this.android.css('border', `1px solid ${clr}`)
     }
 }

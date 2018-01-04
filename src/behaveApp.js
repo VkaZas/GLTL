@@ -1,127 +1,127 @@
-import {LTLNode, LTLEngine} from '../behave/LTLNode';
-import {GridPainter} from './js/GridPainter';
+import { LTLNode, LTLEngine } from '../behave/LTLNode';
+import { GridPainter } from './js/GridPainter';
 import $ from 'jquery';
 
-let sample = LTLEngine.sampleTask1();
-let engine = new LTLEngine();
+const sample = LTLEngine.sampleTask1();
+const engine = new LTLEngine();
 let nowPos = 0;
-let painter = new GridPainter($('#grid-container'), {
-    clickCallBack: (index) => {
-        engine.setAgentPosition(index);
-        engine.setTargetLTL(sample);
-        painter.setAndroid(index);
-    }
+const painter = new GridPainter($('#grid-container'), {
+  clickCallBack: (index) => {
+    engine.setAgentPosition(index);
+    engine.setTargetLTL(sample);
+    painter.setAndroid(index);
+  },
 });
 
-let btnMv1 = $('#btn-mv1');
-let btnMv5 = $('#btn-mv5');
-let btnMv10 = $('#btn-mv10');
-let btnMv100 = $('#btn-mv100');
-let btnTips = $('#btn-tips');
-let taskList = [LTLEngine.sampleTask1(), LTLEngine.sampleTask2(), LTLEngine.sampleTask3(), LTLEngine.sampleTask4(), LTLEngine.sampleTask5()];
-let btnTask1 = $('#btn-task1');
-let btnTask2 = $('#btn-task2');
-let btnTask3 = $('#btn-task3');
-let btnTask4 = $('#btn-task4');
-let btnTask5 = $('#btn-task5');
+const btnMv1 = $('#btn-mv1');
+const btnMv5 = $('#btn-mv5');
+const btnMv10 = $('#btn-mv10');
+const btnMv100 = $('#btn-mv100');
+const btnTips = $('#btn-tips');
+const taskList = [LTLEngine.sampleTask1(), LTLEngine.sampleTask2(), LTLEngine.sampleTask3(), LTLEngine.sampleTask4(), LTLEngine.sampleTask5()];
+const btnTask1 = $('#btn-task1');
+const btnTask2 = $('#btn-task2');
+const btnTask3 = $('#btn-task3');
+const btnTask4 = $('#btn-task4');
+const btnTask5 = $('#btn-task5');
 
 btnTask1.click(() => {
-    changeTask(0);
+  changeTask(0);
 });
 
 btnTask2.click(() => {
-    changeTask(1);
+  changeTask(1);
 });
 
 btnTask3.click(() => {
-    changeTask(2);
+  changeTask(2);
 });
 
 btnTask4.click(() => {
-    changeTask(3);
+  changeTask(3);
 });
 
 btnTask5.click(() => {
-    changeTask(4);
+  changeTask(4);
 });
 
 btnMv1.click(() => {
-    moveAndroidSteps(1);
+  moveAndroidSteps(1);
 });
 
 btnMv5.click(() => {
-    moveAndroidSteps(5);
+  moveAndroidSteps(5);
 });
 
 btnMv10.click(() => {
-    moveAndroidSteps(10);
+  moveAndroidSteps(10);
 });
 
 btnMv100.click(() => {
-    moveAndroidSteps(100);
+  moveAndroidSteps(100);
 });
 
 btnTips.click(() => {
-    log('My current task: ' + engine.nowTask.toString());
+  log(`My current task: ${engine.nowTask.toString()}`);
 });
 
 $(document).ready(() => {
-    window.LTLNode = LTLNode;
-    window.LTLEngine = LTLEngine;
+  window.LTLNode = LTLNode;
+  window.LTLEngine = LTLEngine;
 
-    window.engine = engine;
+  window.engine = engine;
 
-    engine.setTargetLTL(sample);
+  engine.setTargetLTL(sample);
 
-    painter.paintGrid();
-    painter.paintMatrix(engine.mat);
-    painter.setAndroid(0);
+  painter.paintGrid();
+  painter.paintMatrix(engine.mat);
+  painter.setAndroid(0);
 });
 
 function moveAndroidSteps(steps) {
-    for (let i = 0; i < steps; i++) {
-        // let [nxtPos, ] = engine.getAgentNextMove(engine.nowPos, engine.nowTask);
-        let [logs, nxtPos] = engine.moveAgentSteps(1);
-        if (nxtPos === nowPos) {
-            continue;
-        }
-        painter.moveAndroid(nxtPos, () => {
-
-        });
-        cleanLog();
-        // log('My goal: ' + engine.targetLTL.toString(), 'skyblue');
-        // log('My current task: ' + engine.nowTask.toString());
-        // for (let logItem of logs) {
-        //     log(logItem, 'lightgreen');
-        // }
-        setTimeout(() => {}, 500);
-        nowPos = nxtPos;
+  for (let i = 0; i < steps; i++) {
+    // let [nxtPos, ] = engine.getAgentNextMove(engine.nowPos, engine.nowTask);
+    const [logs, nxtPos] = engine.moveAgentSteps(1);
+    if (nxtPos === nowPos) {
+      continue;
     }
+    painter.moveAndroid(nxtPos, () => {
+
+    });
+    cleanLog();
+    // log('My goal: ' + engine.targetLTL.toString(), 'skyblue');
+    // log('My current task: ' + engine.nowTask.toString());
+    // for (let logItem of logs) {
+    //     log(logItem, 'lightgreen');
+    // }
+    setTimeout(() => {}, 500);
+    nowPos = nxtPos;
+  }
 }
 
 function changeTask(idx) {
-    engine.setTargetLTL(taskList[idx], false);
-    painter.setAndroid(0);
+  engine.setTargetLTL(taskList[idx], false);
+  painter.setAndroid(0);
 }
 
 function changePosition(pos) {
-    engine.setAgentPosition(pos);
-    painter.setAndroid(pos);
+  engine.setAgentPosition(pos);
+  painter.setAndroid(pos);
 }
 
 function log(str, color = 'white') {
-    let $p = $('<p>' + str + '</p>'),
-        $logger = $('#logger'),
-        $logs = $('#logger-logs');
-    $p.css('color', color);
-    $logs.append($p);
-    let deltaH = $logs.height() - $logger.height();
-    $logger.scrollTop(deltaH > -40 ? deltaH + 40 : 0);
+  let $p = $(`<p>${str}</p>`),
+    $logger = $('#logger'),
+    $logs = $('#logger-logs');
+  $p.css('color', color);
+  $logs.append($p);
+  const deltaH = $logs.height() - $logger.height();
+  $logger.scrollTop(deltaH > -40 ? deltaH + 40 : 0);
 }
 
 function cleanLog() {
-    let $logs = $('#logger-logs');
-    $logs.empty();
+  const $logs = $('#logger-logs');
+  $logs.empty();
 }
 
 window.moveAndroidSteps = moveAndroidSteps;

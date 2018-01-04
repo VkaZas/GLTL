@@ -1,16 +1,16 @@
+/* eslint-disable no-continue */
 import _ from 'lodash';
 
 const miu = 0.99;
 const gama = 0.9;
-const beta = 0.9;
 
-let defaultLTLNodeProps = {
-    type : 0, //  0 for atoms, 1 for unary operator, 2 for binary operator, 3 for acc/rej
-    val : 0, // integer for atom's sequence number and string for operator names
-    lc : null,
-    rc : null,
-    pa : null,
-    atoms : 0
+const defaultLTLNodeProps = {
+    type: 0, //  0 for atoms, 1 for unary operator, 2 for binary operator, 3 for acc/rej
+    val: 0, // integer for atom's sequence number and string for operator names
+    lc: null,
+    rc: null,
+    pa: null,
+    atoms: 0,
 };
 
 class LTLNode {
@@ -35,57 +35,44 @@ class LTLNode {
         let res = this.deepCopy();
 
         res.pa = null;
-        if (this.type === 0) return [res];
-        if (!!this.lc)
-            res = _.concat(res, this.lc.getSubTrees());
-        if (!!this.rc)
-            res = _.concat(res, this.rc.getSubTrees());
+        if (this.type === 0) { return [res]; }
+        if (this.lc) { res = _.concat(res, this.lc.getSubTrees()); }
+        if (this.rc) { res = _.concat(res, this.rc.getSubTrees()); }
 
-        res = _.sortBy(res, (o) => {
-            return [o.toString().length, o.toString()];
-        });
+        res = _.sortBy(res, o => [o.toString().length, o.toString()]);
 
         return res;
     }
 
     deepCopy() {
-        let res = _.cloneDeep(this);
+        const res = _.cloneDeep(this);
         res.pa = null;
         return res;
     }
 
     eq(node) {
-        return _.eq(this, node);
+        return this.toString() === node.toString();
     }
 
     toString(log = false) {
         if (this.type === 0) {
             let char = String.fromCharCode(this.val + 65);
 
-            if (char === 'A') char = 'go to desk';
-            else if (char === 'B') char = 'go to chair';
-            else if (char === 'C') char = 'go to outlet';
-            else if (char === 'C') char = 'go to fridge';
+            if (char === 'A') { char = 'go to desk'; } else if (char === 'B') { char = 'go to chair'; } else if (char === 'C') { char = 'go to outlet'; } else if (char === 'C') { char = 'go to fridge'; }
 
-            if (!this.pa)
-                if (log) console.log(char);
+            if (!this.pa) { if (log) { console.log(char); } }
             return char;
         }
 
         let res = '';
-        if (this.type === 2)
-            res = '(' + this.lc.toString() + ' ' + this.val + ' ' + this.rc.toString() + ')';
+        if (this.type === 2) { res = `(${this.lc.toString()} ${this.val} ${this.rc.toString()})`; }
 
-        if (this.type === 1)
-            res = this.val + ' ' + this.lc.toString();
+        if (this.type === 1) { res = `${this.val} ${this.lc === null ? '' : this.lc.toString()}`; }
 
-        if (this.type === 3)
-            res = this.val;
+        if (this.type === 3) { res = this.val; }
 
-        if (!this.pa)
-        {
-            if (log)
-                console.log(res + ' ');
+        if (!this.pa) {
+            if (log) { console.log(`${res} `); }
             return res;
         }
 
@@ -93,58 +80,81 @@ class LTLNode {
         return res;
     }
 
+    static positivify(node) {
+        let res = node.deepCopy();
+        res = trim(res);
+
+        return res;
+
+        function trim(node) {
+            if (node.type === 0) {return node;}
+            if (node.val === 'not') {return null;}
+
+            if (node.lc) {node.lc = trim(node.lc);}
+            if (node.rc) {node.rc = trim(node.rc);}
+
+            if (node.type === 1 && node.lc === null) {return null;}
+            if (node.type === 2) {
+                if (node.lc === null) {return node.rc;}
+                if (node.rc === null) {return node.lc;}
+            }
+
+            return node;
+        }
+    }
+
     static createAtomNode(id) {
-        return new LTLNode({val : id, atoms : 1 << id});
+        return new LTLNode({ val: id, atoms: 1 << id });
     }
 
     static createAccNode() {
-        return new LTLNode({type:3, val:'acc'});
+        return new LTLNode({ type: 3, val: 'acc' });
     }
 
     static createRejNode() {
-        return new LTLNode({type:3, val:'rej'});
+        return new LTLNode({ type: 3, val: 'rej' });
     }
 
     static always(node) {
-        let res = new LTLNode({
-            type : 1,
-            val : 'always'
+        const res = new LTLNode({
+            type: 1,
+            val: 'always',
         });
         res.addLc(node);
         return res;
     }
 
     static eventually(node) {
-        let res = new LTLNode({
-            type : 1,
-            val : 'eventually'
+        const res = new LTLNode({
+            type: 1,
+            val: 'eventually',
         });
         res.addLc(node);
         return res;
     }
 
     static next(node) {
-        let res = new LTLNode({
-            type : 1,
-            val : 'next'
+        const res = new LTLNode({
+            type: 1,
+            val: 'next',
         });
         res.addLc(node);
         return res;
     }
 
     static not(node) {
-        let res = new LTLNode({
-            type : 1,
-            val : 'not'
+        const res = new LTLNode({
+            type: 1,
+            val: 'not',
         });
         res.addLc(node);
         return res;
     }
 
     static and(lNode, rNode) {
-        let res = new LTLNode({
-            type : 2,
-            val : 'and'
+        const res = new LTLNode({
+            type: 2,
+            val: 'and',
         });
         res.addLc(lNode);
         res.addRc(rNode);
@@ -152,9 +162,9 @@ class LTLNode {
     }
 
     static or(lNode, rNode) {
-        let res = new LTLNode({
-            type : 2,
-            val : 'or'
+        const res = new LTLNode({
+            type: 2,
+            val: 'or',
         });
         res.addLc(lNode);
         res.addRc(rNode);
@@ -162,9 +172,9 @@ class LTLNode {
     }
 
     static until(lNode, rNode) {
-        let res = new LTLNode({
-            type : 2,
-            val : 'until'
+        const res = new LTLNode({
+            type: 2,
+            val: 'until',
         });
         res.addLc(lNode);
         res.addRc(rNode);
@@ -172,19 +182,19 @@ class LTLNode {
     }
 }
 
-let defaultLTLEngineProps = {
-    targetLTL : null,
-    state : 0, // n-hot binary representation of n dimension state
-    subTaskList : [],
-    hashMap : new Map(),  // node-state hash
-    mat : [],
-    matrixSize : 5,
-    valueMap : new Map(),  // node-pos hash
-    iterationTimes : 500,
-    nowPos : 0,
-    nowTask : null,
-    nowStack : [],
-    nowHistory : ''
+const defaultLTLEngineProps = {
+    targetLTL: null,
+    state: 0, // n-hot binary representation of n dimension state
+    subTaskList: [],
+    hashMap: new Map(), // node-state hash
+    mat: [],
+    matrixSize: 5,
+    valueMap: new Map(), // node-pos hash
+    iterationTimes: 500,
+    nowPos: 0,
+    nowTask: null,
+    nowStack: [],
+    nowHistory: '',
 };
 
 class LTLEngine {
@@ -193,10 +203,10 @@ class LTLEngine {
         Object.assign(this, props);
     }
 
-    generateMatrix(fix=false) {
-        let n = this.matrixSize;
+    generateMatrix(fix = false) {
+        const n = this.matrixSize;
         if (fix) {
-            for (let i = 0; i < n*n; i++) this.mat[i] = '_';
+            for (let i = 0; i < n * n; i++) { this.mat[i] = '_'; }
             this.mat[2] = 'B';
             this.mat[4] = 'A';
             this.mat[6] = 'C';
@@ -212,38 +222,38 @@ class LTLEngine {
             // return this.mat;
         }
 
-        let mat = [];
-        let idx = [];
-        for (let i=0; i<n*n; i++) idx.push(i);
+        const mat = [];
+        const idx = [];
+        for (let i = 0; i < n * n; i++) { idx.push(i); }
 
-        for (let i=0; i<n; i++) {
-            for (let j=0; j<n; j++) {
-                mat[i*n+j] = '_';
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < n; j++) {
+                mat[i * n + j] = '_';
             }
         }
 
         // generate C position
-        let randC = parseInt(4*Math.random());
+        const randC = parseInt(4 * Math.random());
         // let randC = 1;
         // console.log('randC: ' + randC);
-        const posDicC = [0, n-1, n*(n-1), n*n-1];
+        const posDicC = [0, n - 1, n * (n - 1), n * n - 1];
         mat[posDicC[randC]] = 'C';
         // console.log(posDicC[randC]);
         _.pull(idx, posDicC[randC]);
         // console.log(idx);
 
         // generate D
-        let idxD = [];
-        for (let i=0; i<n; i++) {
+        const idxD = [];
+        for (let i = 0; i < n; i++) {
             idxD.push(i);
-            idxD.push(n*(n-1)+i);
+            idxD.push(n * (n - 1) + i);
         }
-        for (let i=1; i<n-1; i++) {
-            idxD.push(n*i);
-            idxD.push(n*i+n-1);
+        for (let i = 1; i < n - 1; i++) {
+            idxD.push(n * i);
+            idxD.push(n * i + n - 1);
         }
         _.pull(idxD, posDicC[randC]);
-        let randD = parseInt(idxD.length*Math.random());
+        const randD = parseInt(idxD.length * Math.random());
         // let randD = 5;
         // console.log('randD: ' + randD);
         // console.log(idxD.length);
@@ -252,8 +262,8 @@ class LTLEngine {
         _.pull(idx, idxD[randD]);
         // console.log(idx);
 
-        //generate A B
-        let randA = parseInt((n*n-2)*Math.random());
+        // generate A B
+        const randA = parseInt((n * n - 2) * Math.random());
         // let randA = 10;
         // console.log('randA: ' + randA);
         mat[idx[randA]] = 'A';
@@ -261,7 +271,7 @@ class LTLEngine {
         _.pull(idx, idx[randA]);
         // console.log(idx);
 
-        let randB = parseInt((n*n-3)*Math.random());
+        const randB = parseInt((n * n - 3) * Math.random());
         // let randB = 15;
         // console.log('randB: ' + randB);
         // console.log(idx[randB]);
@@ -275,14 +285,17 @@ class LTLEngine {
     }
 
     printMatrix() {
-        let n = this.matrixSize;
+        const n = this.matrixSize;
+        let res = '';
         for (let i = 0; i < n; i++) {
             let str = '';
             for (let j = 0; j < n; j++) {
-                str += this.mat[i * n + j] + ' ';
+                str += `${this.mat[i * n + j]} `;
             }
+            res += str;
             console.log(str);
         }
+        return res;
     }
 
     setTargetLTL(node, createMat = true) {
@@ -300,17 +313,16 @@ class LTLEngine {
         this.subTaskList = this.targetLTL.getSubTrees();
 
         // add trimmed tasks
-        let trimTaskList = [];
-        for (let subTask of this.subTaskList) {
-            let res = LTLEngine.getTrimSubTrees(subTask);
-            if (res.length > 0)
-                trimTaskList = _.concat(trimTaskList, res);
-        }
-        this.tryAddToSubtaskList(trimTaskList);
-        console.log('setTargetLTL after added trimNodes: ', this.subTaskList);
+        // let trimTaskList = [];
+        // for (const subTask of this.subTaskList) {
+        //     const res = LTLEngine.getTrimSubTrees(subTask);
+        //     if (res.length > 0) { trimTaskList = _.concat(trimTaskList, res); }
+        // }
+        // this.tryAddToSubtaskList(trimTaskList);
+        // console.log('setTargetLTL after added trimNodes: ', this.subTaskList);
 
         this.computeProbabilityTable();
-        if (createMat) this.generateMatrix();
+        if (createMat) { this.generateMatrix(); }
         this.computeValueIterationNetwork();
     }
 
@@ -323,16 +335,17 @@ class LTLEngine {
     }
 
     getAgentNextMove(startPos, startTask) {
-        let dests = this._getAvailableNextPositions(startPos);
-        let state = this._posToState(startPos);
-        let nodeStateMap = this.getNodeStateProbabilityTable(startTask, state);
+        const dests = this._getAvailableNextPositions(startPos);
+        const state = this._posToState(startPos);
+        const nodeStateMap = this.getNodeStateProbabilityTable(startTask, state);
 
         // calc best direction
-        let finalDest = null, maxV = -100;
-        for (let dest of dests) {
+        let finalDest = null,
+            maxV = -100;
+        for (const dest of dests) {
             let nowV = 0;
-            for (let [key, {resNode, prob}] of nodeStateMap) {
-                let nodePosHash = LTLEngine._hashPos(resNode, dest);
+            for (const [key, { resNode, prob }] of nodeStateMap) {
+                const nodePosHash = LTLEngine._hashPos(resNode, dest);
                 // console.log(nodePosHash);
                 if (resNode.val === 'acc') {
                     nowV += prob;
@@ -342,7 +355,6 @@ class LTLEngine {
                     nowV += this.valueMap.get(nodePosHash) * prob;
                     // console.log(nodePosHash, this.valueMap.get(nodePosHash));
                 }
-
             }
             // console.log(nowV);
             if (nowV > maxV) {
@@ -353,16 +365,16 @@ class LTLEngine {
         }
 
         if (finalDest === null) {
-            console.log("[Failed to find next step]: at position " + startPos + ' with ' + startTask.toString(), finalDest);
+            console.log(`[Failed to find next step]: at position ${startPos} with ${startTask.toString()}`, finalDest);
             // console.log('dests: ', dests);
             // console.log('nodeStateMap', nodeStateMap);
         }
 
         // decide next task by chance f(μ)
         let nxtTask = null;
-        let chance = Math.random();
+        const chance = Math.random();
         let probSum = 0;
-        for (let [key, {resNode, prob}] of nodeStateMap) {
+        for (const [key, { resNode, prob }] of nodeStateMap) {
             probSum += prob;
             if (probSum > chance) {
                 nxtTask = resNode;
@@ -373,68 +385,86 @@ class LTLEngine {
         return [finalDest, nxtTask];
     }
 
-    getOptionalNextMoves(startPos, startTask) {
-        let res = [];
-        let trimTreeList = LTLEngine.getTrimSubTrees(startTask);
-        // console.log('Trim tree list: ', trimTreeList);
-        for (let trimTask of trimTreeList) {
-            let [trimNxtPos, ] = this.getAgentNextMove(startPos, trimTask);
-            res.push([trimTask, trimNxtPos]);
+    getAgentNextDest(startPos, startTask) {
+        if (startTask.type === 3) {return startPos;}
+        let [nxtPos, nxtTask] = this.getAgentNextMove(startPos, startTask);
+        // console.log('nxtTask:', nxtTask);
+        if (nxtPos === startPos && nxtTask.eq(startTask))
+        {return this.mat[nxtPos];}
+
+        let dest = startPos;
+
+        while (nxtTask.eq(startTask)) {
+            // console.log('INnxtTask:', nxtTask);
+            dest = nxtPos;
+            [nxtPos, nxtTask] = this.getAgentNextMove(nxtPos, nxtTask);
         }
-        return res;
+
+        return this.mat[dest];
     }
 
-    moveAgentSteps(steps, log=true) {
-        let logs = [];
+    getOptionalNextMoves(startPos, startTask) {
+        // let res = []
+        // const trimTreeList = LTLEngine.getTrimSubTrees(startTask);
+        // for (const trimTask of trimTreeList) {
+        //     const [trimNxtPos] = this.getAgentNextMove(startPos, trimTask);
+        //     res.push([trimTask, trimNxtPos]);
+        // }
+        const posiTask = LTLNode.positivify(startTask);
+        return [this.getAgentNextMove(startPos, posiTask)];
+    }
+
+    moveAgentSteps(steps, log = true) {
+        const logs = [];
         for (let i = 0; i < steps;) {
-            /** When a sub-task is completed(acc-ed or rej-ed), re-do it according to the type of the parent node of this sub-task(always or eventually) **/
+            /** When a sub-task is completed(acc-ed or rej-ed), re-do it according to the type of the parent node of this sub-task(always or eventually) * */
             if (this.nowTask.type === 3 && this.nowStack.length > 0) {
-                let recoverTask = this.nowStack.pop();
-                let chance = Math.random();
+                const recoverTask = this.nowStack.pop();
+                const chance = Math.random();
                 if (this.nowTask.val === 'acc') {
                     if (recoverTask.val === 'always') {
-                        if (chance < miu) {  // big chance to re-evaluate
+                        if (chance < miu) { // big chance to re-evaluate
                             this.nowTask = recoverTask;
                             continue;
                         }
                     } else if (recoverTask.val === 'eventually') {
-                        continue;  // 100% chance to acc that recover task
+                        continue; // 100% chance to acc that recover task
                     }
                 } else if (this.nowTask.val === 'rej') {
                     if (recoverTask.val === 'eventually') {
-                        if (chance < miu) {  // big chance to re-evaluate
+                        if (chance < miu) { // big chance to re-evaluate
                             this.nowTask = recoverTask;
                             continue;
                         }
                     } else if (recoverTask.val === 'always') {
-                        continue;  // 100% chance to rej that recover task
+                        continue; // 100% chance to rej that recover task
                     }
                 }
             }
 
-            /** Small chance to sudden acc/rej or (acc for eventually) or (rej for always) **/
+            /** Small chance to sudden acc/rej or (acc for eventually) or (rej for always) * */
             if (this.nowTask.type === 3) {
-                console.log("Terminated: " + this.nowTask.val);
+                console.log(`Terminated: ${this.nowTask.val}`);
                 return;
             }
 
-            /** Calculate next move and its reason **/
-            let [nxtPos, nxtTask] = this.getAgentNextMove(this.nowPos, this.nowTask);
-            console.log("[" + this.nowPos + ' ' + this.nowTask.toString() + "] => [" + nxtPos + ' ' + nxtTask.toString() + ']');
+            /** Calculate next move and its reason * */
+            const [nxtPos, nxtTask] = this.getAgentNextMove(this.nowPos, this.nowTask);
+            console.log(`[${this.nowPos} ${this.nowTask.toString()}] => [${nxtPos} ${nxtTask.toString()}]`);
 
             // find other optional next moves to find the reason for current move
-            let optionalNxtMoves = this.getOptionalNextMoves(this.nowPos, this.nowTask);
-            let visited = {};
-            // console.log('Optional next moves: ', optionalNxtMoves);
-            for (let [trimTask, trimNxtPos] of optionalNxtMoves) {
+            const optionalNxtMoves = this.getOptionalNextMoves(this.nowPos, this.nowTask);
+            const visited = {};
+            for (const [trimNxtPos, trimNxtTask] of optionalNxtMoves) {
                 if (nxtPos !== trimNxtPos && !visited[trimNxtPos]) {
-                    visited[trimNxtPos] = 1;
-                    // TODO: there should be some function calls
-                    let logStr = 'If my task were ' + trimTask.toString() + ', I would go ' + trimNxtPos;
-                    if (trimNxtPos === this.nowPos)
-                        logStr = 'If my task were ' + trimTask.toString() + ', I would stay at ' + trimNxtPos;
-                    console.log(logStr);
-                    logs.push(logStr);
+                    // visited[trimNxtPos] = 1;
+                    // // TODO: there should be some function calls
+                    // let logStr = `If my task were ${trimTask.toString()}, I would go ${trimNxtPos}`;
+                    // if (trimNxtPos === this.nowPos) { logStr = `If my task were ${trimTask.toString()}, I would stay at ${trimNxtPos}`; }
+                    // console.log(logStr);
+                    // logs.push(logStr);
+                    console.log('Posi position:',trimNxtPos);
+                    logs.push(trimNxtPos);
                 }
             }
 
@@ -445,9 +475,11 @@ class LTLEngine {
 
             this.nowTask = nxtTask;
             this.nowPos = nxtPos;
-            if (nxtTask.type !== 3) i++;
+            if (nxtTask.type !== 3) { i++; }
 
-            let charCode = this.mat[nxtPos].charCodeAt(0);
+            console.log('NextDest: ', this.getAgentNextDest(this.nowPos, this.nowTask));
+
+            const charCode = this.mat[nxtPos].charCodeAt(0);
             if (charCode >= 65 && charCode <= 91) {
                 this.nowHistory += this.mat[nxtPos];
             }
@@ -456,9 +488,9 @@ class LTLEngine {
     }
 
     computeProbabilityTable() {
-        for (let subTask of this.subTaskList) {
-            let states = LTLEngine.generatePossibleStates(subTask.atoms);
-            for (let state of states) {
+        for (const subTask of this.subTaskList) {
+            const states = LTLEngine.generatePossibleStates(subTask.atoms);
+            for (const state of states) {
                 this.getNodeStateProbabilityTable(subTask, state);
             }
         }
@@ -466,237 +498,241 @@ class LTLEngine {
 
     getNodeStateProbabilityTable(node, state) {
         state = extractState(node.atoms, state);
-        let nodeStateHash = LTLEngine._hash(node, state), resMap = new Map();
-        if (this.hashMap.has(nodeStateHash)) return this.hashMap.get(nodeStateHash);
+        let nodeStateHash = LTLEngine._hash(node, state),
+            resMap = new Map();
+        if (this.hashMap.has(nodeStateHash)) { return this.hashMap.get(nodeStateHash); }
 
         switch (node.type) {
-            case 0:  // an atom
-                if (((state >> node.val) & 1) === 1) {
-                    incMapVal(resMap, LTLNode.createAccNode(), 1);
-                } else {
-                    incMapVal(resMap, LTLNode.createRejNode(), 1);
+        case 0: // an atom
+            if (((state >> node.val) & 1) === 1) {
+                incMapVal(resMap, LTLNode.createAccNode(), 1);
+            } else {
+                incMapVal(resMap, LTLNode.createRejNode(), 1);
+            }
+            break;
+
+        case 1: // a unary operator
+            const childRes = this.getNodeStateProbabilityTable(node.lc, state);
+
+            switch (node.val) {
+            case 'always':
+                for (const key of childRes.keys()) {
+                    const { resNode, prob } = childRes.get(key);
+                    if (resNode.type === 3) { // acc or rej
+                        if (resNode.val === 'acc') {
+                            incMapVal(resMap, LTLNode.createAccNode(), prob * (1 - miu));
+                            incMapVal(resMap, node, prob * miu);
+                        } else {
+                            incMapVal(resMap, LTLNode.createRejNode(), prob);
+                        }
+                    } else {
+                        incMapVal(resMap, LTLNode.createAccNode(), prob * (1 - miu));
+                        incMapVal(resMap, resNode, prob * miu);
+                    }
                 }
                 break;
-
-            case 1: // a unary operator
-                let childRes = this.getNodeStateProbabilityTable(node.lc, state);
-
-                switch (node.val) {
-                    case 'always':
-                        for (let key of childRes.keys()) {
-                            let {resNode, prob} = childRes.get(key);
-                            if (resNode.type === 3) {   // acc or rej
-                                if (resNode.val === 'acc') {
-                                    incMapVal(resMap, LTLNode.createAccNode(), prob * (1 - miu));
-                                    incMapVal(resMap, node, prob * miu);
-                                } else {
-                                    incMapVal(resMap, LTLNode.createRejNode(), prob);
-                                }
-                            } else {
-                                incMapVal(resMap, LTLNode.createAccNode(), prob * (1 - miu));
-                                incMapVal(resMap, resNode, prob * miu)
-                            }
+            case 'eventually':
+                for (const key of childRes.keys()) {
+                    const { resNode, prob } = childRes.get(key);
+                    if (resNode.type === 3) { // acc or rej
+                        if (resNode.val === 'rej') {
+                            incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                            incMapVal(resMap, node, prob * miu);
+                        } else {
+                            incMapVal(resMap, LTLNode.createAccNode(), prob);
                         }
-                        break;
-                    case 'eventually':
-                        for (let key of childRes.keys()) {
-                            let {resNode, prob} = childRes.get(key);
-                            if (resNode.type === 3) {   // acc or rej
-                                if (resNode.val === 'rej') {
-                                    incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
-                                    incMapVal(resMap, node, prob * miu);
-                                } else {
-                                    incMapVal(resMap, LTLNode.createAccNode(), prob);
-                                }
-                            } else {
+                    } else {
+                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                        incMapVal(resMap, resNode, prob * miu);
+                    }
+                }
+                break;
+            case 'next':
+            // for (let key of childRes.keys()) {
+            //     let {resNode, prob} = childRes.get(key);
+            //     // if (resNode.type === 3) {
+            //     //     if (resNode.val === 'acc') {
+            //     //         incMapVal(resMap, LTLNode.createAccNode(), prob);
+            //     //     } else {
+            //     //         incMapVal(resMap, LTLNode.createRejNode(), prob);
+            //     //     }
+            //     // } else {
+            //     //     incMapVal(resMap, resNode, prob);
+            //     // }
+            //     incMapVal(resMap, resNode, prob);
+            // }
+                incMapVal(resMap, node.lc, 1);
+                break;
+            case 'not':
+                for (const key of childRes.keys()) {
+                    const { resNode, prob } = childRes.get(key);
+                    if (resNode.type === 3) { // acc or rej
+                        if (resNode.val === 'acc') {
+                            incMapVal(resMap, LTLNode.createRejNode(), prob);
+                        } else {
+                            incMapVal(resMap, LTLNode.createAccNode(), prob);
+                        }
+                    } else {
+                        incMapVal(resMap, resNode, prob);
+                    }
+                }
+                break;
+            }
+            break;
+
+        case 2: // binary operator
+            let lcState = extractState(state, node.lc.atoms),
+                rcState = extractState(state, node.rc.atoms);
+            let lcRes = this.getNodeStateProbabilityTable(node.lc, lcState),
+                rcRes = this.getNodeStateProbabilityTable(node.rc, rcState);
+
+            switch (node.val) {
+            case 'and':
+                for (const [lKey, lVal] of lcRes) {
+                    let lResNode = lVal.resNode,
+                        lProb = lVal.prob;
+                    for (const [rKey, rVal] of rcRes) {
+                        let rResNode = rVal.resNode,
+                            rProb = rVal.prob;
+
+                        if (lResNode.val === 'rej' || rResNode.val === 'rej') { // rej&rej, rej&acc, rej&S
+                            incMapVal(resMap, LTLNode.createRejNode(), lProb * rProb);
+                        } else if (lResNode.val === 'acc' && rResNode.val === 'acc') { // acc&acc
+                            incMapVal(resMap, LTLNode.createAccNode(), lProb * rProb);
+                        } else if (lResNode.type < 3 && rResNode.type < 3) { // S1&S2
+                            this.tryAddToSubtaskList(LTLNode.and(lResNode, rResNode));
+                            incMapVal(resMap, LTLNode.and(lResNode, rResNode), lProb * rProb);
+                        } else if (lResNode.type < 3) { // S1&acc
+                            incMapVal(resMap, lResNode, lProb * rProb);
+                        } else { // acc&S2
+                            incMapVal(resMap, rResNode, lProb * rProb);
+                        }
+                    }
+                }
+                break;
+            case 'or':
+                for (const [lKey, lVal] of lcRes) {
+                    let lResNode = lVal.resNode,
+                        lProb = lVal.prob;
+                    for (const [rKey, rVal] of rcRes) {
+                        let rResNode = rVal.resNode,
+                            rProb = rVal.prob;
+
+                        if (lResNode.val === 'acc' || rResNode.val === 'acc') { // acc&acc, rej&acc, acc&S
+                            incMapVal(resMap, LTLNode.createAccNode(), lProb * rProb);
+                        } else if (lResNode.val === 'rej' && rResNode.val === 'rej') { // rej&rej
+                            incMapVal(resMap, LTLNode.createRejNode(), lProb * rProb);
+                        } else if (lResNode.type < 3 && rResNode.type < 3) { // S1&S2
+                            this.tryAddToSubtaskList(LTLNode.or(lResNode, rResNode));
+                            incMapVal(resMap, LTLNode.or(lResNode, rResNode), lProb * rProb);
+                        } else if (lResNode.type < 3) { // S1&rej
+                            incMapVal(resMap, lResNode, lProb * rProb);
+                        } else { // rej&S2
+                            incMapVal(resMap, rResNode, lProb * rProb);
+                        }
+                    }
+                }
+                break;
+            case 'until':
+                for (const [lKey, lVal] of lcRes) {
+                    let lResNode = lVal.resNode,
+                        lProb = lVal.prob;
+                    for (const [rKey, rVal] of rcRes) {
+                        let rResNode = rVal.resNode,
+                            rProb = rVal.prob;
+                        const prob = lProb * rProb;
+
+                        if (lResNode.val === 'acc') {
+                            if (rResNode.val === 'acc') {
+                                incMapVal(resMap, LTLNode.createAccNode(), prob);
+                            } else if (rResNode.val === 'rej') {
+                                incMapVal(resMap, node, prob * miu);
                                 incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
-                                incMapVal(resMap, resNode, prob * miu)
-                            }
-                        }
-                        break;
-                    case 'next':
-                        // for (let key of childRes.keys()) {
-                        //     let {resNode, prob} = childRes.get(key);
-                        //     // if (resNode.type === 3) {
-                        //     //     if (resNode.val === 'acc') {
-                        //     //         incMapVal(resMap, LTLNode.createAccNode(), prob);
-                        //     //     } else {
-                        //     //         incMapVal(resMap, LTLNode.createRejNode(), prob);
-                        //     //     }
-                        //     // } else {
-                        //     //     incMapVal(resMap, resNode, prob);
-                        //     // }
-                        //     incMapVal(resMap, resNode, prob);
-                        // }
-                        incMapVal(resMap, node.lc, 1);
-                        break;
-                    case 'not':
-                        for (let key of childRes.keys()) {
-                            let {resNode, prob} = childRes.get(key);
-                            if (resNode.type === 3) {   // acc or rej
-                                if (resNode.val === 'acc') {
-                                    incMapVal(resMap, LTLNode.createRejNode(), prob);
-                                } else {
-                                    incMapVal(resMap, LTLNode.createAccNode(), prob);
-                                }
                             } else {
-                                incMapVal(resMap, resNode, prob);
+                                incMapVal(resMap, LTLNode.until(node.lc, rResNode), prob * miu);
+                                incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
                             }
+                        } else if (lResNode.val === 'rej') {
+                            if (rResNode.val === 'acc') {
+                                incMapVal(resMap, LTLNode.createAccNode(), prob);
+                            } else {
+                                incMapVal(resMap, LTLNode.createRejNode(), prob);
+                            }
+                        } else if (rResNode.val === 'acc') {
+                            incMapVal(resMap, LTLNode.createAccNode(), prob);
+                        } else if (rResNode.val === 'rej') {
+                            incMapVal(resMap, LTLNode.until(lResNode, node.rc), prob * miu);
+                            incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
+                        } else {
+                            incMapVal(resMap, LTLNode.until(lResNode, rResNode), prob * miu);
+                            incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
                         }
-                        break;
+                    }
                 }
                 break;
-
-            case 2:  // binary operator
-                let lcState = extractState(state, node.lc.atoms),
-                    rcState = extractState(state, node.rc.atoms);
-                let lcRes = this.getNodeStateProbabilityTable(node.lc, lcState),
-                    rcRes = this.getNodeStateProbabilityTable(node.rc, rcState);
-
-                switch (node.val) {
-                    case 'and':
-                        for (let [lKey, lVal] of lcRes) {
-                            let lResNode = lVal.resNode, lProb = lVal.prob;
-                            for (let [rKey, rVal] of rcRes) {
-                                let rResNode = rVal.resNode, rProb = rVal.prob;
-
-                                if (lResNode.val === 'rej' || rResNode.val === 'rej') {  // rej&rej, rej&acc, rej&S
-                                    incMapVal(resMap, LTLNode.createRejNode(), lProb * rProb);
-                                } else if (lResNode.val === 'acc' && rResNode.val === 'acc') {  // acc&acc
-                                    incMapVal(resMap, LTLNode.createAccNode(), lProb * rProb);
-                                } else if (lResNode.type < 3 && rResNode.type < 3) {  // S1&S2
-                                    this.tryAddToSubtaskList(LTLNode.and(lResNode, rResNode));
-                                    incMapVal(resMap, LTLNode.and(lResNode, rResNode), lProb * rProb);
-                                } else if (lResNode.type < 3) {  // S1&acc
-                                    incMapVal(resMap, lResNode, lProb * rProb);
-                                } else {  // acc&S2
-                                    incMapVal(resMap, rResNode, lProb * rProb);
-                                }
-                            }
-                        }
-                        break;
-                    case 'or':
-                        for (let [lKey, lVal] of lcRes) {
-                            let lResNode = lVal.resNode, lProb = lVal.prob;
-                            for (let [rKey, rVal] of rcRes) {
-                                let rResNode = rVal.resNode, rProb = rVal.prob;
-
-                                if (lResNode.val === 'acc' || rResNode.val === 'acc') {  // acc&acc, rej&acc, acc&S
-                                    incMapVal(resMap, LTLNode.createAccNode(), lProb * rProb);
-                                } else if (lResNode.val === 'rej' && rResNode.val === 'rej') {  // rej&rej
-                                    incMapVal(resMap, LTLNode.createRejNode(), lProb * rProb);
-                                } else if (lResNode.type < 3 && rResNode.type < 3) {  // S1&S2
-                                    this.tryAddToSubtaskList(LTLNode.or(lResNode, rResNode));
-                                    incMapVal(resMap, LTLNode.or(lResNode, rResNode), lProb * rProb);
-                                } else if (lResNode.type < 3) {  // S1&rej
-                                    incMapVal(resMap, lResNode, lProb * rProb);
-                                } else {  // rej&S2
-                                    incMapVal(resMap, rResNode, lProb * rProb);
-                                }
-                            }
-                        }
-                        break;
-                    case 'until':
-                        for (let [lKey, lVal] of lcRes) {
-                            let lResNode = lVal.resNode, lProb = lVal.prob;
-                            for (let [rKey, rVal] of rcRes) {
-                                let rResNode = rVal.resNode, rProb = rVal.prob;
-                                let prob = lProb * rProb;
-
-                                if (lResNode.val === 'acc') {
-                                    if (rResNode.val === 'acc') {
-                                        incMapVal(resMap, LTLNode.createAccNode(), prob);
-                                    } else if (rResNode.val === 'rej') {
-                                        incMapVal(resMap, node, prob * miu);
-                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
-                                    } else {
-                                        incMapVal(resMap, LTLNode.until(node.lc, rResNode), prob * miu);
-                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
-                                    }
-                                } else if (lResNode.val === 'rej') {
-                                    if (rResNode.val === 'acc') {
-                                        incMapVal(resMap, LTLNode.createAccNode(), prob);
-                                    } else {
-                                        incMapVal(resMap, LTLNode.createRejNode(), prob);
-                                    }
-                                } else {
-                                    if (rResNode.val === 'acc') {
-                                        incMapVal(resMap, LTLNode.createAccNode(), prob);
-                                    } else if (rResNode.val === 'rej') {
-                                        incMapVal(resMap, LTLNode.until(lResNode, node.rc), prob * miu);
-                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
-                                    } else {
-                                        incMapVal(resMap, LTLNode.until(lResNode, rResNode), prob * miu);
-                                        incMapVal(resMap, LTLNode.createRejNode(), prob * (1 - miu));
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                }
-
+            }
         }
 
         this.hashMap.set(nodeStateHash, resMap);
         return resMap;
 
         function incMapVal(map, node, val) {
-            let key = LTLEngine._hash(node);
+            const key = LTLEngine._hash(node);
             if (map.has(key)) {
-                let {resNode, prob} = map.get(key);
+                let { resNode, prob } = map.get(key);
                 prob += val;
-                map.set(key, {resNode, prob})
+                map.set(key, { resNode, prob });
             } else {
                 map.set(key, {
-                    resNode : node,
-                    prob : val
-                })
+                    resNode: node,
+                    prob: val,
+                });
             }
         }
 
-        /** To valid states to conform with atoms of the split sub-tree **/
+        /** To valid states to conform with atoms of the split sub-tree * */
         function extractState(state, atoms) {
             let res = state;
-            for (let i = 0; i < 26; i++)
+            for (let i = 0; i < 26; i++) {
                 if (((atoms >> i) & 1) === 0) {
                     res &= ~(1 << i);
                 }
+            }
             return res;
         }
     }
 
-    /** During 'task transformation' and 'task trimming', some tasks that are not belong to original sub-tasks may occur. Add them to it.**/
+    /** During 'task transformation' and 'task trimming', some tasks that are not belong to original sub-tasks may occur. Add them to it.* */
     tryAddToSubtaskList(node) {
-        if (node instanceof LTLNode) {  // single node
-            for (let subtask of this.subTaskList) {
-                if (subtask.toString() === node.toString()) return;
+        if (node instanceof LTLNode) { // single node
+            for (const subtask of this.subTaskList) {
+                if (subtask.toString() === node.toString()) { return; }
             }
             this.subTaskList.push(node);
-        } else if (node instanceof Array) {  // multiple nodes
-            for (let nowNode of node) {
+        } else if (node instanceof Array) { // multiple nodes
+            for (const nowNode of node) {
                 let existed = false;
-                for (let subtask of this.subTaskList) {
+                for (const subtask of this.subTaskList) {
                     if (subtask.toString() === nowNode.toString()) {
                         existed = true;
                         break;
                     }
                 }
-                if (!existed) this.subTaskList.push(nowNode);
+                if (!existed) { this.subTaskList.push(nowNode); }
             }
         }
     }
 
-    /** Compute VIN with probability table and the given environment **/
+    /** Compute VIN with probability table and the given environment * */
     computeValueIterationNetwork() {
         this.valueMap.clear();
         for (let i = 0; i < this.iterationTimes; i++) {
-            let backupValueMap = _.cloneDeep(this.valueMap);
-            for (let node of this.subTaskList) {
+            const backupValueMap = _.cloneDeep(this.valueMap);
+            for (const node of this.subTaskList) {
                 for (let posIdx = 0; posIdx < this.matrixSize * this.matrixSize; posIdx++) {
-                    let nodePosHash = LTLEngine._hashPos(node, posIdx);
-                    if (i === 0) backupValueMap.set(nodePosHash, 0);
-                    else {
-                        let value = this.getNodePosValueIteration(node, posIdx);
+                    const nodePosHash = LTLEngine._hashPos(node, posIdx);
+                    if (i === 0) { backupValueMap.set(nodePosHash, 0); } else {
+                        const value = this.getNodePosValueIteration(node, posIdx);
                         backupValueMap.set(nodePosHash, value);
                     }
                 }
@@ -706,34 +742,34 @@ class LTLEngine {
     }
 
     getNodePosValueIteration(node, posIdx) {
-        let dests = this._getAvailableNextPositions(posIdx);
-        let state = this._posToState(posIdx);
-        let nodeStateMap = this.getNodeStateProbabilityTable(node, state);
+        const dests = this._getAvailableNextPositions(posIdx);
+        const state = this._posToState(posIdx);
+        const nodeStateMap = this.getNodeStateProbabilityTable(node, state);
 
         let maxV = -2147483647;
-        for (let dest of dests) {
-            for (let [key, {resNode, prob}] of nodeStateMap) {
+        for (const dest of dests) {
+            for (const [key, { resNode, prob }] of nodeStateMap) {
                 let nowV = 0;
                 if (resNode.val === 'acc') {
                     nowV = 1;
                 } else if (resNode.val === 'rej') {
                     nowV = -1;
                 } else {
-                    let nodePosHash = LTLEngine._hashPos(resNode, dest);
+                    const nodePosHash = LTLEngine._hashPos(resNode, dest);
                     nowV = prob * gama * this.valueMap.get(nodePosHash);
                 }
                 if (nowV > maxV) {
                     maxV = Math.max(maxV, nowV);
                 }
-
             }
         }
         return maxV;
     }
 
+    // Abandoned
     static getTrimSubTrees(node) {
-        let res = [];
-        let rootNode = _.cloneDeep(node);
+        const res = [];
+        const rootNode = _.cloneDeep(node);
 
         trim(rootNode);
         return res;
@@ -742,20 +778,18 @@ class LTLEngine {
             if (node.type === 1) {
                 if (node.pa === null) {
                     res.push(node.lc.deepCopy());
+                } else if (node === node.pa.lc) {
+                    node.pa.lc = node.lc;
+                    res.push(rootNode.deepCopy());
+                    node.pa.lc = node;
                 } else {
-                    if (node === node.pa.lc) {
-                        node.pa.lc = node.lc;
-                        res.push(rootNode.deepCopy());
-                        node.pa.lc = node;
-                    } else {
-                        node.pa.rc = node.lc;
-                        res.push(rootNode.deepCopy());
-                        node.pa.rc = node;
-                    }
+                    node.pa.rc = node.lc;
+                    res.push(rootNode.deepCopy());
+                    node.pa.rc = node;
                 }
                 trim(node.lc);
             } else if (node.type === 2) {
-                if (node.pa === null) {  // the root node
+                if (node.pa === null) { // the root node
                     res.push(node.lc.deepCopy());
                     res.push(node.rc.deepCopy());
                     trim(node.lc);
@@ -782,26 +816,21 @@ class LTLEngine {
                     trim(node.rc);
                 }
             }
-
         }
     }
-    
+
     _getAvailableNextPositions(posIdx) {
-        let dests = [posIdx];
-        if (posIdx % this.matrixSize !== 0)
-            dests.push(posIdx - 1);
-        if (posIdx - this.matrixSize >= 0)
-            dests.push(posIdx - this.matrixSize);
-        if ((posIdx + 1) % this.matrixSize !== 0)
-            dests.push(posIdx + 1);
-        if (posIdx + this.matrixSize < this.matrixSize * this.matrixSize)
-            dests.push(posIdx + this.matrixSize);
+        const dests = [posIdx];
+        if (posIdx % this.matrixSize !== 0) { dests.push(posIdx - 1); }
+        if (posIdx - this.matrixSize >= 0) { dests.push(posIdx - this.matrixSize); }
+        if ((posIdx + 1) % this.matrixSize !== 0) { dests.push(posIdx + 1); }
+        if (posIdx + this.matrixSize < this.matrixSize * this.matrixSize) { dests.push(posIdx + this.matrixSize); }
         return dests;
     }
 
     _posToState(posIdx) {
-        let charCode = this.mat[posIdx].charCodeAt(0);
-        if (charCode < 65 || charCode > 90) return 0;
+        const charCode = this.mat[posIdx].charCodeAt(0);
+        if (charCode < 65 || charCode > 90) { return 0; }
         return 1 << (charCode - 65);
     }
 
@@ -809,92 +838,87 @@ class LTLEngine {
         let res = [];
         for (let i = 0; i < 26; i++) {
             if (((atoms >> i) & 1) === 1) {
-                if (res.length === 0)
-                    res.push(0, 1 << i);
-                else {
-                    let newStates = _.map(res, (x) => {
-                        return x | (1 << i);
-                    });
+                if (res.length === 0) { res.push(0, 1 << i); } else {
+                    const newStates = _.map(res, x => x | (1 << i));
                     res = _.concat(res, newStates);
                 }
             }
         }
-        return _.sortBy(res, (o) => o);
+        return _.sortBy(res, o => o);
     }
 
     static _hash(node, state) {
-        return node.toString() + (!!state ? ' ' + state : '');
+        return node.toString() + (state ? ` ${state}` : '');
     }
 
     static _hashPos(node, posIdx) {
-        return node.toString() + ' POS ' + posIdx;
+        return `${node.toString()} POS ${posIdx}`;
     }
 
-    /** always eventually (A and eventually B) **/
+    /** always eventually (A and eventually B) * */
     static sampleTask1() {
         let A = LTLNode.createAtomNode(0),
             B = LTLNode.createAtomNode(1);
         return LTLNode.always(LTLNode.eventually(LTLNode.and(A, LTLNode.eventually(B))));
     }
 
-    /** (eventually A) and (eventually always B)**/
+    /** (eventually A) and (eventually always B)* */
     static sampleTask2() {
-        let A = LTLNode.createAtomNode(0);
-        let B = LTLNode.createAtomNode(1);
+        const A = LTLNode.createAtomNode(0);
+        const B = LTLNode.createAtomNode(1);
         return LTLNode.and(LTLNode.eventually(A), LTLNode.eventually(LTLNode.always(B)));
     }
 
-    /** (A and eventually C) and always not B **/
+    /** (A and eventually C) and always not B * */
     static sampleTask3() {
-        let A = LTLNode.createAtomNode(0);
-        let B = LTLNode.createAtomNode(1);
-        let C = LTLNode.createAtomNode(2);
+        const A = LTLNode.createAtomNode(0);
+        const B = LTLNode.createAtomNode(1);
+        const C = LTLNode.createAtomNode(2);
 
         return LTLNode.and(LTLNode.and(A, LTLNode.eventually(C)), LTLNode.always(LTLNode.not(B)));
     }
 
-    /** eventually A and (always not (B or C))**/
+    /** eventually A and (always not (B or C))* */
     static sampleTask4() {
-        let A = LTLNode.createAtomNode(0);
-        let B = LTLNode.createAtomNode(1);
-        let C = LTLNode.createAtomNode(2);
+        const A = LTLNode.createAtomNode(0);
+        const B = LTLNode.createAtomNode(1);
+        const C = LTLNode.createAtomNode(2);
 
         return LTLNode.and(LTLNode.eventually(A), LTLNode.always(LTLNode.not(LTLNode.or(B, C))));
     }
 
-    /** eventually (A and eventually C) and always not B **/
+    /** eventually (A and eventually C) and always not B * */
     static sampleTask5() {
-        let A = LTLNode.createAtomNode(0);
-        let B = LTLNode.createAtomNode(1);
-        let C = LTLNode.createAtomNode(2);
+        const A = LTLNode.createAtomNode(0);
+        const B = LTLNode.createAtomNode(1);
+        const C = LTLNode.createAtomNode(2);
 
         return LTLNode.and(LTLNode.eventually(LTLNode.and(A, LTLNode.eventually(C))), LTLNode.always(LTLNode.not(B)));
     }
 
-    /** eventually A and always not B **/
+    /** eventually A and always not B * */
     static sampleTask6() {
-        let A = LTLNode.createAtomNode(0);
-        let B = LTLNode.createAtomNode(1);
+        const A = LTLNode.createAtomNode(0);
+        const B = LTLNode.createAtomNode(1);
 
         return LTLNode.and(LTLNode.eventually(A), LTLNode.always(LTLNode.not(B)));
     }
 
     static sampleTaskNext() {
-        let A = LTLNode.createAtomNode(0);
+        const A = LTLNode.createAtomNode(0);
         return LTLNode.eventually(LTLNode.and(A, LTLNode.next(LTLNode.not(A))));
-        // return LTLNode.next(LTLNode.not(A));
+    // return LTLNode.next(LTLNode.not(A));
     }
 
-    /** eventually A and (not B until D) **/
+    /** eventually A and (not B until D) * */
     static darpaTask2() {
-        let A = LTLNode.createAtomNode(0);
-        let B = LTLNode.createAtomNode(1);
-        let C = LTLNode.createAtomNode(2);
-        let D = LTLNode.createAtomNode(3);
+        const A = LTLNode.createAtomNode(0);
+        const B = LTLNode.createAtomNode(1);
+        const C = LTLNode.createAtomNode(2);
+        const D = LTLNode.createAtomNode(3);
         return LTLNode.and(LTLNode.eventually(A), LTLNode.until(LTLNode.not(B), D));
     }
-
 }
 
-export {LTLNode, LTLEngine};
+export { LTLNode, LTLEngine };
 
