@@ -10,7 +10,7 @@ router.post('/', (req, res) => {
             resObj['result'] = 0;
             res.json(JSON.stringify(resObj))
         } else {
-            let sql =  `INSERT INTO ltl_train(uid, tid, curtask, move, agree, timestamp) VALUES ('${obj.uid}', '${obj.tid}', '${obj.ctask}', '${obj.move}', '${obj.agree}', '${Date.now()}')`;
+            let sql =  `INSERT INTO ltl_train_learned(uid, tid, learned, timestamp) VALUES ('${obj.uid}', '${obj.tid}', '${obj.learned}', '${Date.now()}')`;
             conn.query(sql, [], function(err, row) {
                 if (!err) {
                     resObj['result'] = 1;

@@ -10,7 +10,7 @@ router.post('/', (req, res) => {
             resObj['result'] = 0;
             res.json(JSON.stringify(resObj))
         } else {
-            let sql =  `INSERT INTO ltl_task(uid, tid, tpath, upath, map) VALUES ('${obj.uid}', '${obj.tid}', '${obj.tpath}', '${obj.upath}', '${obj.map}')`;
+            let sql =  `INSERT INTO ltl_expl(uid, tid, tpath, upath, map) VALUES ('${obj.uid}', '${obj.tid}', '${obj.tpath}', '${obj.upath}', '${obj.map}')`;
             conn.query(sql, [], function(err, row) {
                 if (!err) {
                     resObj['result'] = 1;

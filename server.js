@@ -11,6 +11,8 @@ const bodyParser = require('body-parser');
 const addUserAct = require('./route/addUserAct');
 const addUserTask = require('./route/addUserTask');
 const addUserTrain = require('./route/addUserTrain');
+const addUserTrainAct = require('./route/addUserTrainAct');
+const addUserTrainLearned = require('./route/addUserTrainLearned');
 
 app.use('/static', express.static(path.join(__dirname, 'img')));
 app.use('/static',express.static(path.join(__dirname, 'dist')));
@@ -32,6 +34,8 @@ app.use(myConnection(mysql, {
 app.use('/addUserAct', addUserAct);
 app.use('/addUserTask', addUserTask);
 app.use('/addUserTrain', addUserTrain);
+app.use('/addUserTrainAct', addUserTrainAct);
+app.use('/addUserTrainLearned', addUserTrainLearned);
 
 app.get('/behave/', (req, res) => res.render('behave'));
 app.get('/guess/', (req, res) => res.render('guess'));

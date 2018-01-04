@@ -10,7 +10,7 @@ router.post('/', (req, res) => {
             resObj['result'] = 0;
             res.json(JSON.stringify(resObj))
         } else {
-            let sql =  `INSERT INTO ltl(uid, action, timestamp) VALUES ('${obj.uid}', '${obj.action}', '${Date.now()}')`;
+            let sql =  `INSERT INTO ltl_expl_act(uid, action, timestamp) VALUES ('${obj.uid}', '${obj.action}', '${Date.now()}')`;
             conn.query(sql, [], function(err, row) {
                 if (!err) {
                     resObj['result'] = 1;

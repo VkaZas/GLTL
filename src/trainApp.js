@@ -4,22 +4,31 @@ import $ from 'jquery';
 
 const uid = uuid(10, 16);
 const url = 'http://localhost:3000';
+let tid = 0;
 
 let $btnPositive = $('#btn-positive'),
     $btnNegative = $('#btn-negative'),
     $btnReplace = $('#btn-replace'),
     $btnReset = $('#btn-reset'),
-    $btnRevert = $('#btn-revert');
+    $btnRevert = $('#btn-revert'),
+    $btnNext = $('#btn-next');
 
-$(document).ready(() => {
-    let s0, s1, replacing = false;
-    let agent = new ILTL({
-        targetTask: ILTL.task3()
+let s0, s1, replacing;
+let agent;
+let painter;
+
+const taskList = [ILTL.task1(), ILTL.task2(), ILTL.task3(), ILTL.task4(), ILTL.task5()];
+
+function init() {
+    s0, s1, replacing = false;
+    agent = new ILTL({
+        targetTask: taskList[tid]
     });
-    let painter = new GridPainter($('#grid-container'), {
+    painter = new GridPainter($('#grid-container'), {
         clickCallBack: (index) => {
             if (!replacing) agent.initSubTask();
-            log('Learning : ' + agent.currentTask.print(), 'skyblue');
+            // log('Learning : ' + agent.currentTask.print(), 'skyblue');
+            log('Learning : ' + agent.targetTask.print(), 'skyblue');
             s0 = index;
             s1 = agent.calcNextMove(s0);
             // console.log(s1);
@@ -39,6 +48,23 @@ $(document).ready(() => {
             painter.freezePainter();
             displayPrediction(s1);
         }
+    });
+
+    agent.init();
+    painter.paintGrid();
+    painter.paintMatrix(agent.mat);
+
+    log('Please place your agent.', 'limegreen');
+}
+
+$(document).ready(() => {
+
+    init();
+
+    $btnNext.click(() => {
+        tid = (tid + 1) % 5;
+        init();
+        addAct('NEXT');
     });
 
     $btnPositive.click(() => {
@@ -68,6 +94,7 @@ $(document).ready(() => {
             log('Please place your agent.', 'limegreen');
             painter.unfreezePainter();
             replacing = false;
+            addLearned(res.print(false));
         }
 
         $.ajax({
@@ -76,8 +103,8 @@ $(document).ready(() => {
             async: 'true',
             data: {
                 uid : uid,
-                tid : 3,
-                ctask : agent.currentTask,
+                tid : tid,
+                ctask : agent.currentTask.print(),
                 move : `${s0.s1}->${s1.s1}`,
                 agree : 1
             },
@@ -86,6 +113,8 @@ $(document).ready(() => {
                 console.log('ajax!!',res);
             }
         });
+
+        addAct('POSITIVE');
     });
 
     $btnNegative.click(() => {
@@ -114,6 +143,7 @@ $(document).ready(() => {
             log('Please place your agent.', 'limegreen');
             painter.unfreezePainter();
             replacing = false;
+            addLearned(res.print(false));
         }
 
         $.ajax({
@@ -122,8 +152,8 @@ $(document).ready(() => {
             async: 'true',
             data: {
                 uid : uid,
-                tid : 3,
-                ctask : agent.currentTask,
+                tid : tid,
+                ctask : agent.currentTask.print(),
                 move : `${s0.s1}->${s1.s1}`,
                 agree : 0
             },
@@ -132,6 +162,7 @@ $(document).ready(() => {
                 console.log('ajax!!',res);
             }
         });
+        addAct('NEGATIVE');
     });
 
     $btnReplace.click(() => {
@@ -139,12 +170,14 @@ $(document).ready(() => {
         painter.unfreezePainter();
         replacing = true;
         log('Please replace your agent.', 'limegreen');
+        addAct('REPLACE');
     });
 
     $btnReset.click(() => {
         painter.clearAndroid();
         painter.unfreezePainter();
         log('Current task has been reset. \n Please place your agent.', 'red');
+        addAct('RESET');
     });
 
     $btnRevert.click(() => {
@@ -152,32 +185,28 @@ $(document).ready(() => {
         agent.revert();
         painter.unfreezePainter();
         log('Reverted to previous task. \n Please place your agent.', 'red');
+        addAct('REVERT');
     });
-
-    agent.init();
-    painter.paintGrid();
-    painter.paintMatrix(agent.mat);
-
-    log('Please place your agent.', 'limegreen');
 
     window.painter = painter;
     window.agent = agent;
 
-    function displayPrediction(state) {
-        // positive
-        let res = agent.predictByFeedback(true, state);
-        if (res.length <= 3 && res.length > 0) {
-            log('By pressing Agree, agent will learn one of following:', 'orange');
-            for (let str of res) log(str, 'orange');
-        }
-        // negative
-        res = agent.predictByFeedback(false, state);
-        if (res.length <= 3 && res.length > 0) {
-            log('By pressing Disagree, agent will learn one of following:', 'orange');
-            for (let str of res) log(str, 'orange');
-        }
-    }
 });
+
+function displayPrediction(state) {
+    // positive
+    let res = agent.predictByFeedback(true, state);
+    if (res.length <= 3 && res.length > 0) {
+        log('By pressing Agree, agent will learn one of following:', 'orange');
+        for (let str of res) log(str, 'orange');
+    }
+    // negative
+    res = agent.predictByFeedback(false, state);
+    if (res.length <= 3 && res.length > 0) {
+        log('By pressing Disagree, agent will learn one of following:', 'orange');
+        for (let str of res) log(str, 'orange');
+    }
+}
 
 function log(str, color = 'white') {
     let $p = $('<p>' + str + '</p>'),
@@ -218,6 +247,39 @@ function uuid(len, radix) {
     return uuid.join('');
 }
 
+function addAct(name) {
+    $.ajax({
+        url : url + '/addUserTrainAct',
+        type: 'POST',
+        async: 'true',
+        data: {
+            uid : uid,
+            tid : tid,
+            action : name
+        },
+        dataType: 'json',
+        success: (res) => {
+            console.log('ajax add train act',res);
+        }
+    });
+}
+
+function addLearned(name) {
+    $.ajax({
+        url : url + '/addUserTrainLearned',
+        type: 'POST',
+        async: 'true',
+        data: {
+            uid : uid,
+            tid : tid,
+            learned : name
+        },
+        dataType: 'json',
+        success: (res) => {
+            console.log('ajax add train learned',res);
+        }
+    });
+}
 
 
 
