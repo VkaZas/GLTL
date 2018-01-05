@@ -86,10 +86,16 @@ class Node {
     }
 
     print(log = true) {
+        const dict = {
+            A : 'go to table',
+            B : 'go to chair',
+            C : 'go to outlet',
+            D : 'go to fridge'
+        };
         if (this.op === 0) {
             if (!this.pa)
                 if (log) console.log(this.val);
-            return this.val;
+            return dict[this.val];
         }
 
         let res = '';
