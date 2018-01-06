@@ -3,7 +3,7 @@ import {GridPainter} from './js/GridPainter';
 import $ from 'jquery';
 
 const uid = uuid(10, 16);
-const url = 'http://localhost:3000';
+const url = 'http://47.89.186.64:3000';
 let tid = 0;
 
 let $btnPositive = $('#btn-positive'),
