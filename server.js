@@ -13,6 +13,7 @@ const addUserTask = require('./route/addUserTask');
 const addUserTrain = require('./route/addUserTrain');
 const addUserTrainAct = require('./route/addUserTrainAct');
 const addUserTrainLearned = require('./route/addUserTrainLearned');
+const addUserSurvey = require('./route/addUserSurvey');
 
 app.use('/static', express.static(path.join(__dirname, 'img')));
 app.use('/static',express.static(path.join(__dirname, 'dist')));
@@ -36,9 +37,11 @@ app.use('/addUserTask', addUserTask);
 app.use('/addUserTrain', addUserTrain);
 app.use('/addUserTrainAct', addUserTrainAct);
 app.use('/addUserTrainLearned', addUserTrainLearned);
+app.use('/addUserSurvey', addUserSurvey);
 
 app.get('/behave/', (req, res) => res.render('behave'));
 app.get('/guess/', (req, res) => res.render('guess'));
 app.get('/train/', (req, res) => res.render('train'));
+app.get('/survey/', (req, res) => res.render('survey'));
 
 app.listen(3000, () => console.log('Example app listening on port 3000!'));

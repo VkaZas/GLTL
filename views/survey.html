@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Survey</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+</head>
+<body>
+<div class="row">
+    <form class="col s12">
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="q1" type="text" class="validate">
+                <label for="q1">1. At a scale from 0 to 5 ( not at all to absolutely yes) How confident are you about whether you can train the robot to learn the things you want it to do?</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="q2" type="text" class="validate">
+                <label for="q2">2. At a scale from 0 to 5 ( never to immediately) How fast do you think the robot can learn the things you want it to do?</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="q3" type="text" class="validate">
+                <label for="q3">3. At a scale from 0 to 5 ( not at all to too complicated) How complicated do you think the tasks were?</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="input-field col s12">
+                <input id="q4" type="text" class="validate">
+                <label for="q4">4. At a scale from 0 to 5 ( not at all to absolutely yes) How much do you want to buy such a robot if it exists?</label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col m12">
+                <a class="waves-effect waves-light btn blue" id="btn-submit">Submit</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<script>
+    var url = 'http://47.89.186.64:3000';
+//    var url = 'http://localhost:3000';
+    $('#btn-submit').click(() => {
+        $.ajax({
+            url : url + '/addUserSurvey',
+            type: 'POST',
+            async: 'true',
+            data: {
+                q1 : $('#q1').val(),
+                q2 : $('#q2').val(),
+                q3 : $('#q3').val(),
+                q4 : $('#q4').val(),
+            },
+            dataType: 'json',
+            success: (res) => {
+                console.log('ajax!!',res);
+            }
+        });
+    });
+</script>
+</body>
+</html>
