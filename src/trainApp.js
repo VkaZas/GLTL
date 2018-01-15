@@ -18,7 +18,8 @@ let s0, s1, replacing;
 let agent;
 let painter;
 
-const taskList = [ILTL.task1(), ILTL.task2(), ILTL.task3(), ILTL.task4(), ILTL.task5()];
+// const taskList = [ILTL.task1(), ILTL.task2(), ILTL.task3(), ILTL.task4(), ILTL.task5()];
+const taskList = [ILTL.task11(), ILTL.task12(), ILTL.task13()];
 
 function init() {
     s0, s1, replacing = false;
@@ -65,7 +66,7 @@ $(document).ready(() => {
     init();
 
     $btnNext.click(() => {
-        tid = (tid + 1) % 5;
+        tid = (tid + 1) % taskList.length;
         init();
         addAct('NEXT');
     });

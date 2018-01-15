@@ -769,5 +769,24 @@ export class ILTL {
 
         return ILTL.hypoAlways(ILTL.hypoEventually(ILTL.hypoAnd(nodeA, ILTL.hypoEventually(nodeB))));
     }
+
+    static task11() {
+        let nodeA = new Node(0, 'A');
+        return ILTL.hypoEventually(nodeA);
+    }
+
+    static task12() {
+        let nodeA = new Node(0, 'A');
+        let nodeB = new Node(0, 'B');
+
+        return ILTL.hypoAnd(ILTL.hypoEventually(nodeA), ILTL.hypoAlways(ILTL.hypoNot(nodeB)));
+    }
+
+    static task13() {
+        let nodeA = new Node(0, 'A');
+        let nodeB = new Node(0, 'B');
+
+        return ILTL.hypoEventually(ILTL.hypoAnd(nodeA, ILTL.hypoEventually(nodeB)));
+    }
 }
 
