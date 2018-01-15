@@ -4,6 +4,7 @@ import $ from 'jquery';
 
 const uid = uuid(10, 16);
 const url = 'http://47.89.186.64:3000';
+// const url = 'http://localhost:3000';
 let tid = 0;
 
 let $btnPositive = $('#btn-positive'),
@@ -54,6 +55,8 @@ function init() {
     painter.paintGrid();
     painter.paintMatrix(agent.mat);
 
+    window.agent = agent;
+
     log('Please place your agent.', 'limegreen');
 }
 
@@ -72,12 +75,15 @@ $(document).ready(() => {
         if (res === 0) {
             s0 = s1;
             s1 = agent.calcNextMove(s0.s1);
+
+            // console.log('[s1]:', s1);
+
             if (s1.s1 !== -1) {
                 if (s1.term === -1) {
-                    s1.s1 = s0.s1;
+                    // s1.s1 = s0.s1;
                     painter.setAndroidEmotion(1);
                 } else if (s1.term === 1) {
-                    s1.s1 = s0.s1;
+                    // s1.s1 = s0.s1;
                     painter.setAndroidEmotion();
                 } else {
                     painter.setAndroidEmotion(2);
@@ -122,12 +128,15 @@ $(document).ready(() => {
         if (res === 0) {
             s0 = s1;
             s1 = agent.calcNextMove(s0.s1);
+
+            // console.log('[s1]:', s1);
+
             if (s1.s1 !== -1) {
                 if (s1.term === -1) {
-                    s1.s1 = s0.s1;
+                    // s1.s1 = s0.s1;
                     painter.setAndroidEmotion(1);
                 } else if (s1.term === 1) {
-                    s1.s1 = s0.s1;
+                    // s1.s1 = s0.s1;
                     painter.setAndroidEmotion();
                 } else {
                     painter.setAndroidEmotion(2);

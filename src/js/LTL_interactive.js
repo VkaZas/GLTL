@@ -292,24 +292,31 @@ export class ILTL {
         let tmpLen = this.TBDTask.length;
         for (let i=tmpLen - 1; i>=0; i--) {
             let thisState = this.feedbackTable[i];
+            // TODO: why did I do this?
+            // if (fb === true) {
+            //     if (state.term === 0) {
+            //         if (thisState.s1 !== state.s1 || thisState.term !== state.term)
+            //             this.TBDTask.splice(i, 1);
+            //     } else {
+            //         if (thisState.term !== state.term)
+            //             this.TBDTask.splice(i, 1);
+            //     }
+            //
+            // } else {
+            //     if (state.term === 0) {
+            //         if (thisState.s1 === state.s1 && thisState.term === state.term)
+            //             this.TBDTask.splice(i, 1);
+            //     } else {
+            //         if (thisState.term === state.term)
+            //             this.TBDTask.splice(i, 1);
+            //     }
+            //
+            // }
+
             if (fb === true) {
-                if (state.term === 0) {
-                    if (thisState.s1 !== state.s1 || thisState.term !== state.term)
-                        this.TBDTask.splice(i, 1);
-                } else {
-                    if (thisState.term !== state.term)
-                        this.TBDTask.splice(i, 1);
-                }
-
+                if (thisState.s1 !== state.s1 || thisState.term !== state.term) this.TBDTask.splice(i, 1);
             } else {
-                if (state.term === 0) {
-                    if (thisState.s1 === state.s1 && thisState.term === state.term)
-                        this.TBDTask.splice(i, 1);
-                } else {
-                    if (thisState.term === state.term)
-                        this.TBDTask.splice(i, 1);
-                }
-
+                if (thisState.s1 === state.s1 && thisState.term === state.term) this.TBDTask.splice(i, 1);
             }
         }
 

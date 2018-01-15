@@ -29,6 +29,7 @@ const btnGuess = $('#btn-guess');
 const title = $('#title');
 
 const url = 'http://47.89.186.64:3000';
+// const url = 'http://localhost:3000';
 const uid = uuid(10, 16);
 
 const dict = {
