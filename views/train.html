@@ -10,6 +10,10 @@
 <body>
     <div class="container">
         <div class="row">
+            <h5 id="h-goal" style="color: orangered"></h5>
+            <h5 id="h-learnt"></h5>
+        </div>
+        <div class="row">
             <!--grid map-->
             <div id="grid-container" class="col m5">
 
@@ -18,10 +22,10 @@
             <div id="operation-container" class="col m3">
                 <div class="row">
                     <div class="col m6">
-                        <a class="waves-effect waves-light btn" id="btn-positive">Agree</a>
+                        <a class="waves-effect waves-light btn" id="btn-positive">Nice move :)</a>
                     </div>
                     <div class="col m6">
-                        <a class="waves-effect waves-light btn" id="btn-negative">Disagree</a>
+                        <a class="waves-effect waves-light btn" id="btn-negative">Bad move :(</a>
                     </div>
                 </div>
                 <div class="row">
@@ -29,19 +33,24 @@
                         <a class="waves-effect waves-light btn red" id="btn-replace">replace</a>
                     </div>
                 </div>
+                <!--<div class="row">-->
+                    <!--<div class="col m12">-->
+                        <!--<a class="waves-effect waves-light btn red" id="btn-reset">reset</a>-->
+                    <!--</div>-->
+                <!--</div>-->
                 <div class="row">
                     <div class="col m12">
-                        <a class="waves-effect waves-light btn red" id="btn-reset">reset</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col m12">
-                        <a class="waves-effect waves-light btn red" id="btn-revert">revert</a>
+                        <a class="waves-effect waves-light btn red" id="btn-revert">revert learnt task</a>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col m12">
                         <a class="waves-effect waves-light btn red" id="btn-next">next</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col m12">
+                        <a class="waves-effect waves-light btn modal-trigger" href="#modal1" id="btn-finish">Finish</a>
                     </div>
                 </div>
             </div>
@@ -63,8 +72,56 @@
         </div>
     </div>
 
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <h4>Survey</h4>
+            <div class="row">
+                <form class="col s12">
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="q1" type="text" class="validate">
+                            <label for="q1">1. At a scale from 0 to 5 ( not at all to absolutely yes) How confident are you about whether you can train the robot to learn the things you want it to do?</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="q2" type="text" class="validate">
+                            <label for="q2">2. At a scale from 0 to 5 ( never to immediately) How fast do you think the robot can learn the things you want it to do?</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="q3" type="text" class="validate">
+                            <label for="q3">3. At a scale from 0 to 5 ( not at all to too complicated) How complicated do you think the tasks were?</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="input-field col s12">
+                            <input id="q4" type="text" class="validate">
+                            <label for="q4">4. At a scale from 0 to 5 ( not at all to absolutely yes) How much do you want to buy such a robot if it exists?</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col m12">
+                            <a class="waves-effect waves-light btn blue" id="btn-submit">Submit</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+        </div>
+    </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="/static/trainApp.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<script src="/static/trainApp.js"></script>
+
+<script>
+    $(document).ready(() => {
+        $('#modal1').modal();
+    });
+</script>
 </body>
 </html>

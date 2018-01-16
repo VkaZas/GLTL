@@ -532,8 +532,6 @@ export class ILTL {
             if (s0 + 5 <25)
                 dests.push(s0+5);
 
-
-
             let tmpCnt = 0;
             let occupy = false;
             for (let key in quadTuple) {

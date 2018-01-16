@@ -22,15 +22,20 @@ let painter;
 const taskList = [ILTL.task11(), ILTL.task12(), ILTL.task13()];
 
 function init() {
+    if (tid === 2)
+        $('#btn-finish').attr('disabled', false);
+    else
+        $('#btn-finish').attr('disabled', true);
     s0, s1, replacing = false;
     agent = new ILTL({
         targetTask: taskList[tid]
     });
+    $('#h-goal').text(`Goal is to learn: ${taskList[tid].print(false)}`);
     painter = new GridPainter($('#grid-container'), {
         clickCallBack: (index) => {
             if (!replacing) agent.initSubTask();
             // log('Learning : ' + agent.currentTask.print(), 'skyblue');
-            log('Learning : ' + agent.targetTask.print(), 'skyblue');
+            // log('Learning : ' + agent.targetTask.print(), 'skyblue');
             s0 = index;
             s1 = agent.calcNextMove(s0);
             // console.log(s1);
@@ -65,6 +70,25 @@ $(document).ready(() => {
 
     init();
 
+    $('#btn-submit').click(() => {
+        $.ajax({
+            url : url + '/addUserSurvey',
+            type: 'POST',
+            async: 'true',
+            data: {
+                q1 : $('#q1').val(),
+                q2 : $('#q2').val(),
+                q3 : $('#q3').val(),
+                q4 : $('#q4').val(),
+            },
+            dataType: 'json',
+            success: (res) => {
+                console.log('ajax!!',res);
+            }
+        });
+        alert(`Your code is ${uid}`);
+    });
+
     $btnNext.click(() => {
         tid = (tid + 1) % taskList.length;
         init();
@@ -95,8 +119,9 @@ $(document).ready(() => {
             } else {
 
             }
-
+            $('#h-learnt').text('Robot: I\'m learning');
         } else {
+            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}, you may revert this now!`);
             log('Task learned : ' + res.print(false), 'limegreen');
             log('Please place your agent.', 'limegreen');
             painter.unfreezePainter();
@@ -148,7 +173,9 @@ $(document).ready(() => {
             } else {
 
             }
+            $('#h-learnt').text('Robot: I\'m learning');
         } else {
+            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}, you may revert this now!`);
             log('Task learned : ' + res.print(false), 'limegreen');
             log('Please place your agent.', 'limegreen');
             painter.unfreezePainter();
@@ -183,12 +210,12 @@ $(document).ready(() => {
         addAct('REPLACE');
     });
 
-    $btnReset.click(() => {
-        painter.clearAndroid();
-        painter.unfreezePainter();
-        log('Current task has been reset. \n Please place your agent.', 'red');
-        addAct('RESET');
-    });
+    // $btnReset.click(() => {
+    //     painter.clearAndroid();
+    //     painter.unfreezePainter();
+    //     log('Current task has been reset. \n Please place your agent.', 'red');
+    //     addAct('RESET');
+    // });
 
     $btnRevert.click(() => {
         painter.clearAndroid();
