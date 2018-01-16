@@ -10,7 +10,7 @@ router.post('/', (req, res) => {
             resObj['result'] = 0;
             res.json(JSON.stringify(resObj))
         } else {
-            let sql =  `INSERT INTO ltl_survey(q1, q2, q3, q4) VALUES ('${obj.q1}', '${obj.q2}', '${obj.q3}', '${obj.q4}')`;
+            let sql =  `INSERT INTO ltl_survey(uid, q1, q2, q3, q4) VALUES ('${obj.uid}','${obj.q1}', '${obj.q2}', '${obj.q3}', '${obj.q4}')`;
             conn.query(sql, [], function(err, row) {
                 if (!err) {
                     resObj['result'] = 1;

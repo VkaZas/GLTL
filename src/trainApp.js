@@ -18,6 +18,12 @@ let s0, s1, replacing;
 let agent;
 let painter;
 
+const termDict = {
+    '-1' : 'Reject',
+    '0' : 'Undecided',
+    '1' : 'accept'
+};
+
 // const taskList = [ILTL.task1(), ILTL.task2(), ILTL.task3(), ILTL.task4(), ILTL.task5()];
 const taskList = [ILTL.task11(), ILTL.task12(), ILTL.task13()];
 
@@ -51,7 +57,7 @@ function init() {
             // console.log('[clickCallBack]: s1 = ', s1);
             painter.setAndroid(s0);
             painter.moveAndroid(s1.s1);
-            log(s0 + '->' + s1.s1);
+            log(s0 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
             painter.freezePainter();
             displayPrediction(s1);
         }
@@ -76,6 +82,7 @@ $(document).ready(() => {
             type: 'POST',
             async: 'true',
             data: {
+                uid : uid,
                 q1 : $('#q1').val(),
                 q2 : $('#q2').val(),
                 q3 : $('#q3').val(),
@@ -114,12 +121,12 @@ $(document).ready(() => {
                     painter.setAndroidEmotion(2);
                 }
                 painter.moveAndroid(s1.s1);
-                log(s0.s1 + '->' + s1.s1);
+                log(s0.s1 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
                 displayPrediction(s1);
             } else {
 
             }
-            $('#h-learnt').text('Robot: I\'m learning');
+            $('#h-learnt').text('Robot: I\'m learning...');
         } else {
             $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}, you may revert this now!`);
             log('Task learned : ' + res.print(false), 'limegreen');
@@ -168,12 +175,12 @@ $(document).ready(() => {
                     painter.setAndroidEmotion(2);
                 }
                 painter.moveAndroid(s1.s1);
-                log(s0.s1 + '->' + s1.s1);
+                log(s0.s1 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
                 displayPrediction(s1);
             } else {
 
             }
-            $('#h-learnt').text('Robot: I\'m learning');
+            $('#h-learnt').text('Robot: I\'m learning...');
         } else {
             $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}, you may revert this now!`);
             log('Task learned : ' + res.print(false), 'limegreen');
