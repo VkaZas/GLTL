@@ -12,7 +12,8 @@ let $btnPositive = $('#btn-positive'),
     $btnReplace = $('#btn-replace'),
     $btnReset = $('#btn-reset'),
     $btnRevert = $('#btn-revert'),
-    $btnNext = $('#btn-next');
+    $btnNext = $('#btn-next'),
+    $modal = $('#modal1');
 
 let s0, s1, replacing;
 let agent;
@@ -28,10 +29,6 @@ const termDict = {
 const taskList = [ILTL.task11(), ILTL.task12(), ILTL.task13()];
 
 function init() {
-    if (tid === 2)
-        $('#btn-finish').attr('disabled', false);
-    else
-        $('#btn-finish').attr('disabled', true);
     s0, s1, replacing = false;
     agent = new ILTL({
         targetTask: taskList[tid]
@@ -97,6 +94,10 @@ $(document).ready(() => {
     });
 
     $btnNext.click(() => {
+        if (tid === taskList.length - 1) {
+            window.openModal();
+            return;
+        }
         tid = (tid + 1) % taskList.length;
         init();
         addAct('NEXT');

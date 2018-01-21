@@ -182,7 +182,7 @@ export class ILTL {
             currentTaskIndex: 0,
             succeedLastRound: true,
             finish: () => {
-                alert('Training finished');
+                // alert('Training finished');
             }
         });
         
@@ -278,7 +278,7 @@ export class ILTL {
         if (nextState !== null) return nextState;
         else {
             console.log('DEAD!!');
-            alert('Failed!');
+            alert('The robot has ruled out all the tasks it think you might be teaching. Click \'forget & retrain\' to start over.');
             return {
                 s1: -1,
                 term: 0

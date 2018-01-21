@@ -10,6 +10,9 @@
         .row > h5 {
             padding-left: 50px;
         }
+        .input-field > input {
+            margin-top: 10px !important;
+        }
     </style>
 </head>
 <body>
@@ -52,12 +55,7 @@
                 </div>
                 <div class="row">
                     <div class="col m12">
-                        <a class="waves-effect waves-light btn red" id="btn-next">next task</a>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col m12">
-                        <a class="waves-effect waves-light btn modal-trigger" href="#modal1" id="btn-finish">Finish</a>
+                        <a class="waves-effect waves-light btn red" id="btn-next">Finish Training Current Task</a>
                     </div>
                 </div>
             </div>
@@ -129,6 +127,9 @@
     $(document).ready(() => {
         $('#modal1').modal();
     });
+    window.openModal = () => {
+        $('#modal1').modal('open');
+    }
 </script>
 </body>
 </html>
