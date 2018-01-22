@@ -133,11 +133,11 @@ $(document).ready(() => {
                 log(`${termDict[s1.term]}`);
                 // displayPrediction(s1);
             } else {
-                log('OOPS! I may have learnt something wrong Click \'forget & retrain\' to start over.');
+                log('OOPS! I may have learnt something wrong Click FORGET&RETRAIN to start over.');
             }
             // $('#h-learnt').text('Robot: I\'m learning...');
         } else {
-            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}. \n If I'm wrong, click on Forget&Retrain. \n If you want me to learn more, place me at anywhere you find reasonable. \n If I've learnt your target, please click Finish&Next`);
+            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}. \n If I'm wrong, click on FORGET&RETRAIN. \n If you want me to learn more, place me at anywhere you find reasonable. \n If I've learnt your target, please click FINISH TRAINING CURRENT TASK`);
             // log('Task learned : ' + res.print(false), 'limegreen');
             // log('Please place your robot.', 'limegreen');
             painter.unfreezePainter();
@@ -186,13 +186,13 @@ $(document).ready(() => {
                 painter.moveAndroid(s1.s1);
                 // log(s0.s1 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
                 log(`${termDict[s1.term]}`);
-                displayPrediction(s1);
+                // displayPrediction(s1);
             } else {
-                log('OOPS! I may have learnt something wrong Click \'forget & retrain\' to start over.');
+                log('OOPS! I may have learnt something wrong Click FORGET&RETRAIN to start over.');
             }
             // $('#h-learnt').text('Robot: I\'m learning...');
         } else {
-            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}. \n If I'm wrong, click on Forget&Retrain. \n If you want me to learn more, place me at anywhere you find reasonable. \n If I've learnt your target, please click Finish&Next`);
+            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}. \n If I'm wrong, click on FORGET&RETRAIN. \n If you want me to learn more, place me at anywhere you find reasonable. \n If I've learnt your target, please click FINISH TRAINING CURRENT TASK`);
             // log('Task learned : ' + res.print(false), 'limegreen');
             // log('Please place your robot.', 'limegreen');
             painter.unfreezePainter();
