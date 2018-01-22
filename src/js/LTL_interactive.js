@@ -87,7 +87,7 @@ class Node {
 
     print(log = true) {
         const dict = {
-            A : 'go to table',
+            A : 'go to desk',
             B : 'go to chair',
             C : 'go to outlet',
             D : 'go to fridge'
@@ -278,7 +278,7 @@ export class ILTL {
         if (nextState !== null) return nextState;
         else {
             console.log('DEAD!!');
-            alert('The robot has ruled out all the tasks it think you might be teaching. Click \'forget & retrain\' to start over.');
+            // alert('The robot has ruled out all the tasks it think you might be teaching. Click \'forget & retrain\' to start over.');
             return {
                 s1: -1,
                 term: 0
@@ -325,12 +325,12 @@ export class ILTL {
             this.learntTask = this.TBDTask[0];
             this.currentTaskIndex++;
             this.defaultTask.push(this.learntTask);
-            if (this.currentTask.equal(this.targetTask))
-            {
-                if (this.finish instanceof Function)
-                    console.log("Finished");
-                    this.finish();
-            }
+            // if (this.currentTask.equal(this.targetTask))
+            // {
+            //     if (this.finish instanceof Function)
+            //         console.log("Finished");
+            //         this.finish();
+            // }
             return this.learntTask;
         } else return 0;
     }
@@ -768,23 +768,30 @@ export class ILTL {
         return ILTL.hypoAlways(ILTL.hypoEventually(ILTL.hypoAnd(nodeA, ILTL.hypoEventually(nodeB))));
     }
 
+    // static task11() {
+    //     let nodeA = new Node(0, 'A');
+    //     return ILTL.hypoEventually(nodeA);
+    // }
+
     static task11() {
         let nodeA = new Node(0, 'A');
         return ILTL.hypoEventually(nodeA);
     }
 
     static task12() {
-        let nodeA = new Node(0, 'A');
         let nodeB = new Node(0, 'B');
-
-        return ILTL.hypoAnd(ILTL.hypoEventually(nodeA), ILTL.hypoAlways(ILTL.hypoNot(nodeB)));
+        return ILTL.hypoNot(nodeB);
     }
 
     static task13() {
-        let nodeA = new Node(0, 'A');
-        let nodeB = new Node(0, 'B');
+        let nodeC = new Node(0, 'C');
+        return ILTL.hypoAlways(nodeC);
+    }
 
-        return ILTL.hypoEventually(ILTL.hypoAnd(nodeA, ILTL.hypoEventually(nodeB)));
+    static task14() {
+        let nodeD = new Node(0, 'D');
+        let nodeA = new Node(0, 'A');
+        return ILTL.hypoEventually(ILTL.hypoAnd(nodeD, ILTL.hypoEventually(nodeA)));
     }
 }
 

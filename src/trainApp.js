@@ -20,20 +20,26 @@ let agent;
 let painter;
 
 const termDict = {
-    '-1' : 'Reject',
-    '0' : 'Undecided',
-    '1' : 'accept'
+    '-1' : 'Robot:"I guess your task wants me to stop learning here"',
+    '0' : 'Robot:"I think I need more steps to finish learning your task"',
+    '1' : 'Robot:"I think I\'ve reached your expectation"'
 };
 
 // const taskList = [ILTL.task1(), ILTL.task2(), ILTL.task3(), ILTL.task4(), ILTL.task5()];
-const taskList = [ILTL.task11(), ILTL.task12(), ILTL.task13()];
+const taskList = [ILTL.task11(), ILTL.task12(), ILTL.task13(), ILTL.task14()];
+const taskDict = {
+    0 : 'Go to the desk',
+    1 : 'Avoid the chair',
+    2 : 'Stay at the charger',
+    3 : 'Go to the fridge then go to the desk'
+};
 
 function init() {
     s0, s1, replacing = false;
     agent = new ILTL({
         targetTask: taskList[tid]
     });
-    $('#h-goal').text(`Goal is to learn: ${taskList[tid].print(false)}`);
+    $('#h-goal').text(`Goal is to teach: ${taskDict[tid]}`);
     painter = new GridPainter($('#grid-container'), {
         clickCallBack: (index) => {
             if (!replacing) agent.initSubTask();
@@ -54,9 +60,10 @@ function init() {
             // console.log('[clickCallBack]: s1 = ', s1);
             painter.setAndroid(s0);
             painter.moveAndroid(s1.s1);
-            log(s0 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
+            // log(s0 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
+            log(`${termDict[s1.term]}`);
             painter.freezePainter();
-            displayPrediction(s1);
+            // displayPrediction(s1);
         }
     });
 
@@ -66,7 +73,7 @@ function init() {
 
     window.agent = agent;
 
-    log('Please place your agent.', 'limegreen');
+    log('Please place your robot.', 'limegreen');
 }
 
 $(document).ready(() => {
@@ -122,16 +129,17 @@ $(document).ready(() => {
                     painter.setAndroidEmotion(2);
                 }
                 painter.moveAndroid(s1.s1);
-                log(s0.s1 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
-                displayPrediction(s1);
+                // log(s0.s1 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
+                log(`${termDict[s1.term]}`);
+                // displayPrediction(s1);
             } else {
-
+                log('OOPS! I may have learnt something wrong Click \'forget & retrain\' to start over.');
             }
-            $('#h-learnt').text('Robot: I\'m learning...');
+            // $('#h-learnt').text('Robot: I\'m learning...');
         } else {
-            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}, you may revert this now!`);
-            log('Task learned : ' + res.print(false), 'limegreen');
-            log('Please place your agent.', 'limegreen');
+            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}. \n If I'm wrong, click on Forget&Retrain. \n If you want me to learn more, place me at anywhere you find reasonable. \n If I've learnt your target, please click Finish&Next`);
+            // log('Task learned : ' + res.print(false), 'limegreen');
+            // log('Please place your robot.', 'limegreen');
             painter.unfreezePainter();
             replacing = false;
             addLearned(res.print(false));
@@ -176,16 +184,17 @@ $(document).ready(() => {
                     painter.setAndroidEmotion(2);
                 }
                 painter.moveAndroid(s1.s1);
-                log(s0.s1 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
+                // log(s0.s1 + '->' + s1.s1 + ` ${termDict[s1.term]}`);
+                log(`${termDict[s1.term]}`);
                 displayPrediction(s1);
             } else {
-
+                log('OOPS! I may have learnt something wrong Click \'forget & retrain\' to start over.');
             }
-            $('#h-learnt').text('Robot: I\'m learning...');
+            // $('#h-learnt').text('Robot: I\'m learning...');
         } else {
-            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}, you may revert this now!`);
-            log('Task learned : ' + res.print(false), 'limegreen');
-            log('Please place your agent.', 'limegreen');
+            $('#h-learnt').text(`Robot: I've learnt how to ${res.print(false)}. \n If I'm wrong, click on Forget&Retrain. \n If you want me to learn more, place me at anywhere you find reasonable. \n If I've learnt your target, please click Finish&Next`);
+            // log('Task learned : ' + res.print(false), 'limegreen');
+            // log('Please place your robot.', 'limegreen');
             painter.unfreezePainter();
             replacing = false;
             addLearned(res.print(false));
@@ -214,7 +223,7 @@ $(document).ready(() => {
         painter.clearAndroid();
         painter.unfreezePainter();
         replacing = true;
-        log('Please replace your agent.', 'limegreen');
+        // log('Please replace your agent.', 'limegreen');
         addAct('REPLACE');
     });
 
@@ -229,7 +238,7 @@ $(document).ready(() => {
         painter.clearAndroid();
         agent.revert();
         painter.unfreezePainter();
-        log('Reverted to previous task. \n Please place your agent.', 'red');
+        // log('Reverted to previous task. \n Please place your agent.', 'red');
         addAct('REVERT');
     });
 
@@ -254,13 +263,15 @@ function displayPrediction(state) {
 }
 
 function log(str, color = 'white') {
+    let $hLearnt = $('#h-learnt');
     let $p = $('<p>' + str + '</p>'),
         $logger = $('#logger'),
         $logs = $('#logger-logs');
-    $p.css('color', color);
-    $logs.append($p);
-    let deltaH = $logs.height() - $logger.height();
-    $logger.scrollTop(deltaH > -40 ? deltaH + 40 : 0);
+    // $p.css('color', color);
+    // $logs.append($p);
+    // let deltaH = $logs.height() - $logger.height();
+    // $logger.scrollTop(deltaH > -40 ? deltaH + 40 : 0);
+    $hLearnt.text(str);
 }
 
 function uuid(len, radix) {
